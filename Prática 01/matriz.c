@@ -4,6 +4,7 @@
 
 void lerOrdem(int *ordem) {
     scanf("%d", ordem);
+    getchar(); //incluir getchar() para limpar o buffer
 }
 
 //manter como especificado
@@ -20,15 +21,17 @@ double **alocaMatriz(int ordem) {
 //manter como especificado
 void desalocaMatriz(double ***M, int ordem) {
     for(int i = 0; i < ordem; i++){
-        free(M[i]);
+        free((*M)[i]);
     }
-    free(M);
+    free(*M);
+    //ERRO AO LIBERAR A MATRIZ, COMO ELA É PASSADA POR REFERENCIA, TEMOS QUE USAR PONTEIRO
 }
 
 //manter como especificado
 void lerOperacao(char *operacao) {
-    printf("S ou M");
-    scanf("%c", operacao);
+
+    *operacao = getchar();
+
 }
 
 void lerMatriz(double **M, int ordem) {
