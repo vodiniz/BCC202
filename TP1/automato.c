@@ -68,7 +68,7 @@ AutomatoCelular **evoluirReticulado(AutomatoCelular **automatoCelular, int dimen
         for (int j = 0; j < dimensao; j++)
         {
 
-            printf("---------CELULA[%d][%d]----------\n", i, j);
+            //printf("---------CELULA[%d][%d]----------\n", i, j);
 
             int contadorCelular = 0;
             int x0 = i - 1;
@@ -91,8 +91,8 @@ AutomatoCelular **evoluirReticulado(AutomatoCelular **automatoCelular, int dimen
 
 
 
-            printf("x0 = %d, xf = %d\n", x0, xf);
-            printf("y0 = %d, yf = %d\n", y0, yf);
+            // printf("x0 = %d, xf = %d\n", x0, xf);
+            // printf("y0 = %d, yf = %d\n", y0, yf);
 
             for (int k = x0; k <= xf; k++)
             {
@@ -100,7 +100,7 @@ AutomatoCelular **evoluirReticulado(AutomatoCelular **automatoCelular, int dimen
                 {
                     if (!(k == i && l == j))
                     {
-                        printf("checando a celula[%d][%d] = %d\n",k, j, automatoCelular[k][l].vida);
+                        // printf("checando a celula[%d][%d] = %d\n",k, j, automatoCelular[k][l].vida);
                         if (CopiaAutomatoCelular[k][l].vida == VIVO)
                         {
                             contadorCelular++;
@@ -109,41 +109,44 @@ AutomatoCelular **evoluirReticulado(AutomatoCelular **automatoCelular, int dimen
                 }
             }
 
-            printf("contador = %d\n", contadorCelular);
+            // printf("contador = %d\n", contadorCelular);
 
             // celula renasce
             if (automatoCelular[i][j].vida == MORTO && contadorCelular == 3)
             {
                 automatoCelular[i][j].vida = VIVO;
-                printf("renasce\n");
+                // printf("renasce\n");
 
             } // solidão
             else if (automatoCelular[i][j].vida == VIVO && contadorCelular < 2)
             {
                 automatoCelular[i][j].vida = MORTO;
-                printf("Morre (solidão)\n");
+                // printf("Morre (solidão)\n");
 
             } // continua viva
             else if (automatoCelular[i][j].vida == VIVO && (contadorCelular == 2  || contadorCelular == 3))
             {
                 automatoCelular[i][j].vida = VIVO;
-                printf("Continua Viva \n");
+                // printf("Continua Viva \n");
 
             } //sufocamento
             else if (automatoCelular[i][j].vida == VIVO && contadorCelular > 3)
             {
                 automatoCelular[i][j].vida = MORTO;
-                printf("Morre (sufocamento) \n");
+                // printf("Morre (sufocamento) \n");
 
             } else {
-                printf("Continua morta \n");
+                // printf("Continua morta \n");
 
             }
-            printf("-------------------\n");
+            // printf("-------------------\n");
 
         }
     }
 
+
+
+    desalocarReticulado(&CopiaAutomatoCelular, dimensao);
     return automatoCelular;
 }
 

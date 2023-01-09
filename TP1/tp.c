@@ -9,7 +9,6 @@ int main(){
     lerDimensao(&dimensao);
     automatoCelular = alocarReticulado(dimensao);
     leituraReticulado(automatoCelular, dimensao);
-    imprimeReticulado(automatoCelular, dimensao);
     automatoCelular = evoluirReticulado(automatoCelular, dimensao);
     imprimeReticulado(automatoCelular, dimensao);
     desalocarReticulado(&automatoCelular, dimensao);
