@@ -26,7 +26,7 @@ AutomatoCelular **alocarReticulado(int dimensao)
 
     for (int i = 0; i < dimensao; i++)
     {
-        automatoCelular[i] = calloc(dimensao, sizeof(AutomatoCelular));
+        automatoCelular[i] = malloc(dimensao * sizeof(AutomatoCelular));
     }
 
     return automatoCelular;
@@ -68,8 +68,6 @@ AutomatoCelular **evoluirReticulado(AutomatoCelular **automatoCelular, int dimen
         for (int j = 0; j < dimensao; j++)
         {
 
-            //printf("---------CELULA[%d][%d]----------\n", i, j);
-
             int contadorCelular = 0;
             int x0 = i - 1;
             int y0 = j - 1;
@@ -89,11 +87,6 @@ AutomatoCelular **evoluirReticulado(AutomatoCelular **automatoCelular, int dimen
             if(yf >= dimensao)
                 yf = dimensao - 1;
 
-
-
-            // printf("x0 = %d, xf = %d\n", x0, xf);
-            // printf("y0 = %d, yf = %d\n", y0, yf);
-
             for (int k = x0; k <= xf; k++)
             {
                 for (int l = y0; l <= yf; l++)
@@ -109,37 +102,23 @@ AutomatoCelular **evoluirReticulado(AutomatoCelular **automatoCelular, int dimen
                 }
             }
 
-            // printf("contador = %d\n", contadorCelular);
-
             // celula renasce
             if (automatoCelular[i][j].vida == MORTO && contadorCelular == 3)
             {
                 automatoCelular[i][j].vida = VIVO;
-                // printf("renasce\n");
-
             } // solidão
             else if (automatoCelular[i][j].vida == VIVO && contadorCelular < 2)
             {
                 automatoCelular[i][j].vida = MORTO;
-                // printf("Morre (solidão)\n");
-
             } // continua viva
             else if (automatoCelular[i][j].vida == VIVO && (contadorCelular == 2  || contadorCelular == 3))
             {
                 automatoCelular[i][j].vida = VIVO;
-                // printf("Continua Viva \n");
-
             } //sufocamento
             else if (automatoCelular[i][j].vida == VIVO && contadorCelular > 3)
             {
                 automatoCelular[i][j].vida = MORTO;
-                // printf("Morre (sufocamento) \n");
-
-            } else {
-                // printf("Continua morta \n");
-
             }
-            // printf("-------------------\n");
 
         }
     }
