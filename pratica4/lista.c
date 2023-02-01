@@ -64,13 +64,18 @@ void TLista_Esvazia(TLista *pLista) {
     //cuidado se a lista for vazia. ????
 
     TCelula *atual = pLista->pPrimeiro->pProx;
+    TCelula *aux = atual;
 
-    // while(atual != NULL){
-    //     TCelula *aux;
-    //     aux = atual;
-    //     atual = atual->pProx;
-    //     free(aux);
-    // }
+    while(atual){
+        
+        aux = atual->pProx;
+        free(atual);
+        atual = aux;
+        
+    }
+
+    free(pLista->pPrimeiro);
+
 
 }
 
@@ -88,6 +93,7 @@ void TLista_append(TLista *pLista1, TLista *pLista2){
 
     pLista1->pUltimo = pAux;
 
+    free(pLista2->pPrimeiro);
 }
 
 // Inclui o conteudo de uma lista em outra, na posicao anterior a str, apenas manipulando ponteiros
@@ -115,7 +121,8 @@ void TLista_include(TLista *pLista1, TLista *pLista2, char *str){
     
     pAux->pProx = pAuxStr;
 
-    pLista1->pUltimo = pAuxStr;
+    free(pLista2->pPrimeiro);
+
 
 }
 

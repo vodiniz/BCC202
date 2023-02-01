@@ -1,6 +1,7 @@
 #include "lista.h"
 #include<stdio.h>
 #include<string.h>
+#include <stdlib.h>
 //tamanho maximo de uma string
 #define MAX_STR 1200
 int main()
@@ -66,7 +67,8 @@ int main()
     // //ao final as duas listas estarao unificadas, entao basta esvaziar a original
     
     TLista_Esvazia(&original);
-    TLista_Esvazia(&nova);
+    
+
 
     return 0;//nao remova
 }
