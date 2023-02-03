@@ -63,3 +63,21 @@ void TLista_Imprime ( TLista * pLista ){
     printf("\n");
 
 }
+
+
+int TLista_Insere_Cursor ( TLista * pLista , TCelula *cursor, char x){
+
+    TCelula *nova_celula = ( TCelula *) malloc ( sizeof ( TCelula ));
+    TCelula *aux = cursor->pProx;
+
+    nova_celula->item.letra = x;
+    nova_celula->pProx = aux;
+
+    cursor->pProx = nova_celula;
+
+    if(nova_celula->pProx == NULL)
+        pLista->pUltimo = nova_celula;
+
+    return 1;
+
+}

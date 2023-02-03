@@ -22,7 +22,7 @@ int TLista_InsereFinal(TLista *pLista, TItem x) {
     pLista->pUltimo->pProx =( TCelula *) malloc ( sizeof ( TCelula ));
     pLista->pUltimo = pLista->pUltimo->pProx ;
     pLista->pUltimo->item = x;
-    pLista -> pUltimo -> pProx = NULL ;
+    pLista->pUltimo->pProx = NULL ;
 
     return 1;
 
@@ -126,3 +126,9 @@ void TLista_include(TLista *pLista1, TLista *pLista2, char *str){
 
 }
 
+void insere_cursor(TLista *pLista, TCelula celula){
+
+
+
+
+}
