@@ -25,7 +25,6 @@ int TLista_InsereFinal(TLista *pLista, TItem x) {
     pLista->pUltimo->pProx = NULL ;
 
     return 1;
-
 }
 
 // Retira o primeiro item da lista
