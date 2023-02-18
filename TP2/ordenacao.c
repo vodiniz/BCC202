@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include "ordenacao.h"
 
@@ -10,7 +11,7 @@
 
 Ponto* alocaPontos (int npontos){
 
-    Ponto *pontos = (Ponto*)malloc(sizeof(Ponto) * npontos);
+    Ponto *pontos = (Ponto*)malloc(npontos * sizeof(Ponto));
     return pontos;
 }
 
@@ -18,10 +19,13 @@ Objeto* alocaObjetos (int npontos, int nobj){
 
     
     Objeto* lista = (Objeto*)malloc(sizeof(Objeto) * nobj);
-    for (int i = 0; i < npontos; i++)
+    for (int i = 0; i < nobj; i++)
     {
         lista[i].npontos = npontos;
         lista[i].pontos = alocaPontos(npontos);
+        lista[i].deslocamento = 0;
+        lista[i].distancia = 0;
+
     }
     
     return lista;
@@ -36,7 +40,7 @@ void desalocaObjetos(Objeto **lista, int nobj){
     
     for(int i = 0; i < nobj; i++){
         //conferir aritimetica de ponteiros
-        desalocaPontos(lista[i]->pontos);
+        desalocaPontos(&(lista[i]->pontos));
     }
     free(*lista);
 }
