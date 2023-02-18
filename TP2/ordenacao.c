@@ -12,17 +12,19 @@
 Ponto* alocaPontos (int npontos){
 
     Ponto *pontos = (Ponto*)malloc(npontos * sizeof(Ponto));
+
     return pontos;
 }
 
 Objeto* alocaObjetos (int npontos, int nobj){
 
-    
-    Objeto* lista = (Objeto*)malloc(sizeof(Objeto) * nobj);
-    for (int i = 0; i < nobj; i++)
-    {
+    Objeto* lista = (Objeto*)malloc(nobj * sizeof(Objeto));
+
+    for (int i = 0; i < nobj; i++){
+
         lista[i].npontos = npontos;
         lista[i].pontos = alocaPontos(npontos);
+
         lista[i].deslocamento = 0;
         lista[i].distancia = 0;
 
@@ -38,9 +40,11 @@ void desalocaPontos (Ponto **pontos){
 
 void desalocaObjetos(Objeto **lista, int nobj){
     
+    printf("NOBJETO: %d\n",nobj);
     for(int i = 0; i < nobj; i++){
         //conferir aritimetica de ponteiros
-        desalocaPontos(&(lista[i]->pontos));
+        desalocaPontos(&((*lista)[i].pontos));
+        printf("I: %d\n", i);
     }
     free(*lista);
 }
@@ -64,8 +68,8 @@ void lerObjetos(Objeto *lista, int nobj){
 }
 
 double calcularDistancia (Objeto *objeto){
-    float distancia = 0;
-    for(int i = 0; i < objeto->npontos; i++){
+    double distancia = 0;
+    for(int i = 0; i < objeto->npontos - 1; i++){
         distancia += sqrt(pow((objeto->pontos[i+1].x - objeto->pontos[i].x), 2) 
         + pow((objeto->pontos[i+1].y - objeto->pontos[i].y), 2));
     }
@@ -87,9 +91,9 @@ void realizaCalculos(Objeto *objetos, int nobj){
 }
 
 void mergeSort(Objeto *objetos, int l, int r){
-    int m;
+    
     if(l < r){
-        m = (l + r)/2;
+        int m = (l + r)/2;
         mergeSort(objetos, l, m);
         mergeSort(objetos, m + 1, r);
         merge(objetos, l, m, r);
@@ -97,22 +101,23 @@ void mergeSort(Objeto *objetos, int l, int r){
 }
 
 void merge(Objeto *objetos, int l, int m, int r){
-    Objeto *objetoL, *objetoR;
-    int j = 0, i = 0;
+
     int size_l = (m - l + 1);
     int size_r = (r - m);
 
-    //separar em 2 funções diferentes para alocar.
-    objetoL = alocaObjetos(objetos->npontos, size_l);
-    objetoR = alocaObjetos(objetos->npontos, size_r);
+    Objeto *objetosL = alocaObjetos(objetos->npontos, size_l);
+    Objeto *objetosR = alocaObjetos(objetos->npontos, size_r);
 
-    for (; i < size_l; i++)
-    {
-        objetoL[i] = objetos[i + l];
+    int j, i ;
+
+
+
+    for (i = 0; i < size_l; i++){
+        objetosL[i] = objetos[i + l];
     }
-    for (; j < size_r; j++)
+    for ( j = 0; j < size_r; j++)
     {
-        objetoR[j] = objetos[m + j + 1];
+        objetosR[j] = objetos[m + j + 1];
     }
 
     i = 0;
@@ -122,37 +127,46 @@ void merge(Objeto *objetos, int l, int m, int r){
     {
         if (i == size_l)
         {
-            objetos[k] = objetoR[j++];
+            objetos[k] = objetosR[j++];
         }
         else if (j == size_r)
         {
-            objetos[k] = objetoL[i++];
+            objetos[k] = objetosL[i++];
         }
-        else if (comparaObjeto(&objetoL[i], &objetoR[j]))
+        else if (comparaObjeto(&objetosL[i], &objetosR[j]))
         {
-            objetos[k] = objetoL[i++];
+            objetos[k] = objetosL[i++];
         } 
         else {
-            objetos[k] = objetoL[j++];
+            objetos[k] = objetosR[j++];
         }
          
     }
     
-    desalocaObjetos(&objetoL, size_l);
-    desalocaObjetos(&objetoR, size_r);
+//     printf("------------DESALOCANDO L NO MERGE----------\n");
+    // desalocaObjetos(&objetosL, size_l );
+//     printf("---------------------------------------------\n");
+
+//     printf("------------DESALOCANDO R NO MERGE----------\n");
+    // desalocaObjetos(&objetosR, size_r);
+//     printf("---------------------------------------------\n");
+
 }
 
 int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
 
 
     //perigoso comparar doubles, ficar esperto 
-    if (objeto1->distancia > objeto2->distancia)
-    {
+    if (objeto1->distancia > objeto2->distancia){
+        printf("%lf > %lf\n", objeto1->distancia, objeto2->distancia);
         return 1;
         
     } else if (objeto1->distancia < objeto2->distancia){
+        printf("%lf < %lf\n", objeto1->distancia, objeto2->distancia);
         return 0;
     } else {
+
+        printf("%lf == %lf\n", objeto1->distancia, objeto2->distancia);
         if (objeto1->deslocamento > objeto2->deslocamento)
         {
             return 1;

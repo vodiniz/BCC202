@@ -10,12 +10,12 @@ int main(void){
 
     lista = alocaObjetos(npontos, nobj);
     lerObjetos(lista, nobj);
-    
-    imprime(lista, nobj);
+
+    // imprime(lista, nobj);
 
     realizaCalculos(lista, nobj);
     mergeSort(lista, 0, npontos -1);
-    // imprime(lista, nobj);
+    imprime(lista, nobj);
     desalocaObjetos(&lista, nobj);
 
     return 0;
