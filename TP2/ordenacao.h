@@ -14,11 +14,22 @@ typedef struct{
     double deslocamento;
 }Objeto;
 
-int alocaPontos (Objeto *lista, int npontos, int nobj);
-void desalocaPontos (Objeto *lista, int nobj);
+Ponto* alocaPontos (int npontos);
+Objeto* alocaObjetos (int npontos, int nobj);
+void desalocaPontos (Ponto **pontos);
+void desalocaObjetos (Objeto **lista, int nobj);
+
+void lerPontos(Ponto*, int);
+void lerObjetos(Objeto *lista, int nobj);
+
 double calcularDistancia (Objeto *objeto);
 double calcularDeslocamento (Objeto *objeto);
-void ordena ();
+void realizaCalculos(Objeto *objetos, int nobj);
+
+void mergeSort(Objeto *objetos, int l, int r);
+void merge(Objeto *objetos, int l, int m, int r);
+int comparaObjeto(Objeto*, Objeto*);
+
 void imprime (Objeto *lista, int nobj);
 
 #endif
