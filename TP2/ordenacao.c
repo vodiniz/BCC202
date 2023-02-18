@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "ordenacao.h"
+#include "compare_double.h"
 
 
 
@@ -40,19 +41,18 @@ void desalocaPontos (Ponto **pontos){
 
 void desalocaObjetos(Objeto **lista, int nobj){
     
-    printf("NOBJETO: %d\n",nobj);
+    // printf("NOBJETO: %d\n",nobj);
     for(int i = 0; i < nobj; i++){
         //conferir aritimetica de ponteiros
         desalocaPontos(&((*lista)[i].pontos));
-        printf("I: %d\n", i);
+        // printf("I: %d\n", i);
     }
     free(*lista);
 }
 
 
 void lerPontos(Ponto* pontos, int npontos){
-    for (int i = 0; i < npontos; i++)
-    {
+    for (int i = 0; i < npontos; i++){
         scanf("%d", &pontos[i].x);
         scanf("%d", &pontos[i].y);
     }
@@ -90,91 +90,102 @@ void realizaCalculos(Objeto *objetos, int nobj){
     
 }
 
-void mergeSort(Objeto *objetos, int l, int r){
-    
-    if(l < r){
+void mergesort(Objeto *v, int l, int r){
+    if (l < r){
         int m = (l + r)/2;
-        mergeSort(objetos, l, m);
-        mergeSort(objetos, m + 1, r);
-        merge(objetos, l, m, r);
+        mergesort(v, l, m);
+        mergesort(v, m + 1, r);
+        merge(v, l, m, r);
+
     }
 }
 
-void merge(Objeto *objetos, int l, int m, int r){
+void merge(Objeto *v, int l, int m, int r){
 
     int size_l = (m - l + 1);
     int size_r = (r - m);
+    
+    Objeto *vet_l = (Objeto*) malloc (size_l * sizeof(Objeto));
+    Objeto *vet_r = (Objeto*) malloc (size_r * sizeof(Objeto));
 
-    Objeto *objetosL = alocaObjetos(objetos->npontos, size_l);
-    Objeto *objetosR = alocaObjetos(objetos->npontos, size_r);
+    int i,j;
+    for (i = 0; i < size_l; i++)
+        vet_l[i] = v[i + l];
 
-    int j, i ;
-
-
-
-    for (i = 0; i < size_l; i++){
-        objetosL[i] = objetos[i + l];
-    }
-    for ( j = 0; j < size_r; j++)
-    {
-        objetosR[j] = objetos[m + j + 1];
-    }
+    for (j = 0; j < size_r; j++)
+        vet_r[j] = v[m + j + 1];
 
     i = 0;
     j = 0;
 
-    for (int k = l; k <= r; k++)
-    {
-        if (i == size_l)
-        {
-            objetos[k] = objetosR[j++];
-        }
-        else if (j == size_r)
-        {
-            objetos[k] = objetosL[i++];
-        }
-        else if (comparaObjeto(&objetosL[i], &objetosR[j]))
-        {
-            objetos[k] = objetosL[i++];
-        } 
-        else {
-            objetos[k] = objetosR[j++];
-        }
+    for (int k = l; k <= r; k++){
          
-    }
-    
-//     printf("------------DESALOCANDO L NO MERGE----------\n");
-    // desalocaObjetos(&objetosL, size_l );
-//     printf("---------------------------------------------\n");
+        if (i == size_l)
+            v[k] = vet_r[j++];
+        
+        else if (j == size_r)
+            v[k] = vet_l[i++];
 
-//     printf("------------DESALOCANDO R NO MERGE----------\n");
-    // desalocaObjetos(&objetosR, size_r);
-//     printf("---------------------------------------------\n");
+        else if (comparaObjeto(&vet_l[i], &vet_r[j]))
+            v[k] = vet_l[i++];
+
+        else
+            v[k] = vet_r[j++];
+    }
+
+    // desalocaObjetos(&vet_l,size_l);
+    // desalocaObjetos(&vet_r,size_r);
 
 }
+
+
+void shellSort(Objeto *objetos, int n) {
+	int h = 1;
+    Objeto aux;
+    while( h < n)
+        h = 3 * h + 1;
+
+    do{
+
+        h = (h - 1)/3;
+
+        for ( int i = h; i < n;i++){
+            aux = objetos[i]; 
+            int j = i;
+            while(comparaObjeto(&objetos[j - h], &aux)){
+                objetos[j] = objetos[j-h];
+                j = j - h;
+                if ( j < h){
+                    break;
+                }
+            }
+            objetos[j] = aux;
+            
+        }
+    } while ( h != 1); 
+}
+
+
 
 int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
 
 
+
     //perigoso comparar doubles, ficar esperto 
-    if (objeto1->distancia > objeto2->distancia){
-        printf("%lf > %lf\n", objeto1->distancia, objeto2->distancia);
-        return 1;
-        
-    } else if (objeto1->distancia < objeto2->distancia){
-        printf("%lf < %lf\n", objeto1->distancia, objeto2->distancia);
+    if (definitelyGreaterThan(objeto1->distancia, objeto2->distancia)){
         return 0;
+        
+    } else if (definitelyLessThan(objeto1->distancia, objeto2->distancia)){
+        return 1;
     } else {
 
-        printf("%lf == %lf\n", objeto1->distancia, objeto2->distancia);
-        if (objeto1->deslocamento > objeto2->deslocamento)
-        {
+        if (definitelyGreaterThan(objeto1->deslocamento, objeto2->deslocamento)) {
             return 1;
-        } else if(objeto1->deslocamento < objeto2->deslocamento){
+
+        } else if(definitelyLessThan(objeto1->deslocamento, objeto2->deslocamento)){
             return 0;
-        }
-        else{
-            if(strcmp(objeto1->ID, objeto2->ID) < 0){
+        } else{
+            if(strcmp(objeto1->ID, objeto2->ID) > 0){
                 return 1;
             } else {
                 return 0;

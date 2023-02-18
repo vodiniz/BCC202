@@ -26,8 +26,11 @@ double calcularDistancia (Objeto *objeto);
 double calcularDeslocamento (Objeto *objeto);
 void realizaCalculos(Objeto *objetos, int nobj);
 
-void mergeSort(Objeto *objetos, int l, int r);
+void mergesort(Objeto *objetos, int l, int r);
 void merge(Objeto *objetos, int l, int m, int r);
+
+void shellSort(Objeto *objetos, int n);
+
 int comparaObjeto(Objeto*, Objeto*);
 
 void imprime (Objeto *lista, int nobj);
