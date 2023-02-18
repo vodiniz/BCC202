@@ -14,8 +14,8 @@ int main(void){
     // imprime(lista, nobj);
 
     realizaCalculos(lista, nobj);
-    // mergesort(lista, 0, npontos -1);
-    shellSort(lista, nobj);
+    mergesort(lista, 0, npontos - 1, npontos);
+    // shellSort(lista, nobj);
     imprime(lista, nobj);
     desalocaObjetos(&lista, nobj);
 

@@ -19,34 +19,35 @@ Ponto* alocaPontos (int npontos){
 
 Objeto* alocaObjetos (int npontos, int nobj){
 
-    Objeto* lista = (Objeto*)malloc(nobj * sizeof(Objeto));
+    Objeto* objetos = (Objeto*)malloc(nobj * sizeof(Objeto));
 
     for (int i = 0; i < nobj; i++){
 
-        lista[i].npontos = npontos;
-        lista[i].pontos = alocaPontos(npontos);
+        objetos[i].npontos = npontos;
+        objetos[i].pontos = alocaPontos(npontos);
 
-        lista[i].deslocamento = 0;
-        lista[i].distancia = 0;
+        objetos[i].deslocamento = 0;
+        objetos[i].distancia = 0;
 
     }
     
-    return lista;
+    return objetos;
 }
 
 
-void desalocaPontos (Ponto **pontos){
-    free(*pontos);
+void desalocaPontos (Ponto *pontos){
+    free(pontos);
 }
 
 void desalocaObjetos(Objeto **lista, int nobj){
     
-    // printf("NOBJETO: %d\n",nobj);
+
+    printf("-------------------DESALOCA------------\n");
     for(int i = 0; i < nobj; i++){
-        //conferir aritimetica de ponteiros
-        desalocaPontos(&((*lista)[i].pontos));
-        // printf("I: %d\n", i);
+        desalocaPontos((*lista)[i].pontos);
+        printf("I: %d\n", i);
     }
+    printf("-------------------------------\n");
     free(*lista);
 }
 
@@ -90,33 +91,50 @@ void realizaCalculos(Objeto *objetos, int nobj){
     
 }
 
-void mergesort(Objeto *v, int l, int r){
+void mergesort(Objeto *v, int l, int r, int npontos){
     if (l < r){
         int m = (l + r)/2;
-        mergesort(v, l, m);
-        mergesort(v, m + 1, r);
-        merge(v, l, m, r);
+        mergesort(v, l, m, npontos);
+        mergesort(v, m + 1, r, npontos);
+        merge(v, l, m, r, npontos);
 
     }
 }
 
-void merge(Objeto *v, int l, int m, int r){
+void merge(Objeto *v, int l, int m, int r, int npontos){
 
     int size_l = (m - l + 1);
+    printf("sizeof l: %d\n", size_l);
+
     int size_r = (r - m);
+    printf("sizeof r: %d\n", size_r);
     
-    Objeto *vet_l = (Objeto*) malloc (size_l * sizeof(Objeto));
-    Objeto *vet_r = (Objeto*) malloc (size_r * sizeof(Objeto));
+
+    Objeto *vet_l = alocaObjetos(npontos, size_l);
+
+    Objeto *vet_r = alocaObjetos(npontos, size_r);
+
+
 
     int i,j;
     for (i = 0; i < size_l; i++)
         vet_l[i] = v[i + l];
 
+    printf("---------VET L------\n");
+    imprime(vet_l, size_l);
+    printf("---------------\n");
+
+
     for (j = 0; j < size_r; j++)
         vet_r[j] = v[m + j + 1];
 
-    i = 0;
+    i = 0; 
     j = 0;
+
+    printf("---------VET R------\n");
+    imprime(vet_r, size_r);
+    printf("---------------\n");
+
 
     for (int k = l; k <= r; k++){
          
@@ -133,8 +151,8 @@ void merge(Objeto *v, int l, int m, int r){
             v[k] = vet_r[j++];
     }
 
-    // desalocaObjetos(&vet_l,size_l);
-    // desalocaObjetos(&vet_r,size_r);
+    desalocaObjetos(&vet_l,size_l);
+    desalocaObjetos(&vet_r,size_r);
 
 }
 
@@ -194,6 +212,35 @@ int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
         
     }
 }
+
+
+int comparaObjetoMerge(Objeto *objeto1, Objeto *objeto2){
+
+    if (definitelyGreaterThan(objeto1->distancia, objeto2->distancia)){
+        return 1;
+        
+    } else if (definitelyLessThan(objeto1->distancia, objeto2->distancia)){
+        return 0;
+    } else {
+
+        if (definitelyGreaterThan(objeto1->deslocamento, objeto2->deslocamento)) {
+            return 1;
+
+        } else if(definitelyLessThan(objeto1->deslocamento, objeto2->deslocamento)){
+            return 0;
+        } else{
+            if(strcmp(objeto1->ID, objeto2->ID) > 0){
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        
+    }
+}
+
+
+
 
 
 void imprime (Objeto *lista, int nobj){
