@@ -58,9 +58,10 @@ A máquina onde o desenvolvimento e os testes foram realizados possui a seguinte
 Para a compilação do projeto, basta digitar:
 
 \begin{tcolorbox}[title=Compilando o projeto,width=\linewidth]
-    gcc -c orenacao.c -Wall \newline
-    gcc -c tp.c -Wall \newline
-    gcc  -g ordenacao.o tp.o -o exe
+    gcc tp.o ordenacao.o compare$\_$double.o -o exe -g -Wall -lm\newline
+    gcc tp.c -c -g -lm\newline
+    gcc ordenacao.c -c -g -lm -Wall\newline
+    gcc compare$\_$double.c -c -g -lm -Wall
 \end{tcolorbox}
 
 Usou-se para a compilação as seguintes opções:
@@ -69,6 +70,9 @@ Usou-se para a compilação as seguintes opções:
     \item [-] \emph{-g}: para compilar com informação de depuração e ser usado pelo Valgrind.
     \item [-] \emph{-Wall}: para mostrar todos os possível \emph{warnings} do código.
     \item [-] \emph{-c}: Para compilar o arquivo sem linkar os arquivos para obtermos um arquivo do tipo objeto.
+    \item [-] \emph{-lm}: Para fazer o link da biblioteca math.h
+    \item [-] \emph{-o}: Para indicar o nome do arquivo de saida.
+
 \end{itemize}
 
 Para a execução do programa basta digitar:
@@ -84,11 +88,18 @@ Onde “caminho-até-o-arquivo-de-entrada” pode ser: “1.in” para realizar 
 
 \section{Desenvolvimento}
 
-Seguindo as boas práticas de programação, implementamos um tipo abstrato de dados ( TAD ) para a representação do nosso problema. De acordo com o pedido, e para uma melhor organização, o nosso código foi modularizado em três arquivos, tp.c ordenacao.h e ordenacao.c em que o arquivo tp.c deve apenas invocar e tratar as respostas das funções e procedimentos definidos no arquivo ordenacao.h.
+Seguindo as boas práticas de programação, implementamos um tipo abstrato de dados 
+( TAD ) para a representação do nosso problema. De acordo com o pedido, e para uma 
+melhor organização, o nosso código foi modularizado em cinco arquivos, tp.c ordenacao.h,
+ordenacao.c, compare$\_$doubles.c e compare$\_$doubles.h em que o arquivo tp.c deve apenas invocar e tratar as respostas das funções e 
+procedimentos definidos no arquivo ordenacao.h.
 
 \subsection{TAD}
-Para começar a resolução do problema proposto, decidimos criar duas structs, que representariam o nosso objeto e seriam nosso TAD. O primeiro, struct Ponto, que nos informaria, com base no plano cartesiano, as coordenadas do Objeto, 
-nossa segunda struct, que contém informações necessárias para distinguir um objeto do outro.
+Para começar a resolução do problema proposto, decidimos criar duas structs, 
+que representariam o nosso objeto e seriam nosso TAD. O primeiro, struct Ponto, 
+que nos informaria, com base no plano cartesiano, as coordenadas do Objeto,
+nossa segunda struct, que contém informações necessárias para distinguir um 
+objeto do outro, seja sua trajetória, distância e ID.
 
 \begin{lstlisting}[caption={TAD's representando Ponto e Objeto, respectivamente},label={lst:cod1},language=C]
 
@@ -113,7 +124,7 @@ A seguir entraremos em detalhe sobre as principais funções utilizadas no progr
 
 \subsubsection{alocaPontos}
 
-Criamos essa função para alocar, dinâmicamente, vários pontos.
+Criamos essa função para alocar dinâmicamente, vários pontos, baseado em um valor digitado pelo usuário.
 
 \begin{lstlisting}[caption={Função alocaPontos},label={lst:cod2},language=C]
 
@@ -236,8 +247,11 @@ void realizaCalculos(Objeto *objetos, int nobj){
 
 \subsubsection{comparaObjeto}
 
-Função necessária para fazer a comparação necessária no shellSort, optamos por fazer uma função separada para que o código ficasse
-legível e mais arrumado. As funções utilizadas nessa função estão presentes no "compare\_double.c".
+Função necessária para fazer a comparação necessária de nossos TADs, seguindo as regras
+definidas no trabalho. Optamos por fazer uma função separada 
+para que o código ficasse mais legível e modularizado. 
+As funções utilizadas nessa função estão presentes no 
+"compare\_double.c".
 
 \begin{lstlisting}[caption={Função comparaObjetos},label={lst:cod7},language=C]
 
@@ -302,9 +316,32 @@ void shellSort(Objeto *objetos, int n) {
     
 \end{lstlisting}
 
+
+\subsubsection{mergeSort}
+
+Implementamos também a função mergeSorte, que faz uma chamada recursiva dela mesma
+no passo da divisão, para depois chamarmos a merge no passo da conquista e fazermos a ordenação.
+
+\begin{lstlisting}[caption={Função mergeSort},label={lst:cod7},language=C]
+
+void mergesort(Objeto *v, int l, int r, int npontos){
+    if (l < r){
+        int m = (l + r)/2;
+        mergesort(v, l, m, npontos);
+        mergesort(v, m + 1, r, npontos);
+        merge(v, l, m, r, npontos);
+
+    }
+}
+
+\end{lstlisting}
+
+
+
 \subsubsection{merge}
 
-Implementamos também a função merge e mergeSort
+Implementamos a função merge, que será responsável pela parte da conquista, em que após a divisão
+irá ordenar os subvetores em um maior, até que nosso vetor esteja completamente ordenado.
 
 \begin{lstlisting}[caption={Função merge},label={lst:cod7},language=C]
 
@@ -313,8 +350,6 @@ Implementamos também a função merge e mergeSort
     int size_l = (m - l + 1);
     int size_r = (r - m);
 
-
-    //porque tem que ser malloc ?
     Objeto *vet_l = malloc( size_l * sizeof(Objeto));
     Objeto *vet_r = malloc( size_r * sizeof(Objeto));
 
@@ -352,25 +387,7 @@ Implementamos também a função merge e mergeSort
 }
     
 \end{lstlisting}
-
-\subsubsection{mergeSort}
-
-Implementamos também a função merge e mergeSort
-
-\begin{lstlisting}[caption={Função mergeSort},label={lst:cod7},language=C]
-
-void mergesort(Objeto *v, int l, int r, int npontos){
-    if (l < r){
-        int m = (l + r)/2;
-        mergesort(v, l, m, npontos);
-        mergesort(v, m + 1, r, npontos);
-        merge(v, l, m, r, npontos);
-
-    }
-}
-
     
-\end{lstlisting}
 
 \clearpage
 \subsection{main}
@@ -408,18 +425,50 @@ int main(void){
 
 \section{Impressões Gerais}
 
-Com as funções já pré definidas foi muito mais fácil construir a lógica para o desenvolvimento modular do código. O nosso grupo então se reuniu e pensou coletivamente sobre a ordem de execução das funções e suas utilidades.
-Outro conhecimento adquirido e posto em prática foi o uso do shellSort, método de ordenação, para a solução do nosso problema. Houve também o desenvolvimento de um código bem modularizado, com uma excelente ajuda das instruções contidas no documento que nos foi disponibilizado como exemplo.
+Primeiramente além das funções necessárias passadas no PDF, pensamos em quais funções a mais
+deveriamos implementar. Com as funções já pré definidas foi muito mais fácil construir 
+a lógica para o desenvolvimento modular do código. O nosso grupo então se
+reuniu e pensou coletivamente sobre a ordem de execução das funções e suas 
+utilidades.Outro conhecimento adquirido e posto em prática foi o uso de 
+diferentes métodos de ordenação, para a solução do nosso problema.
+Inicialmente, obtivemos um pouco de dificuldade na implementação do MergeSort e acabamos optando
+pela implementação do ShellSort, porém depois com um pouco de dificuldade conseguimos resolver o problema
+e optamos por deixar os dois métodos no trabalho.
+Tambêm tivemos um leve problema com a comparação de números de pontos flututantes, em que foi necessário uma pequena
+pausa no trabalho para que pudessemos pensar em uma solução. Foi ai que surgiu o compare$\_$doubles.h.
+Assim houve também o desenvolvimento de um código bem modularizado, 
+com uma excelente ajuda das instruções contidas no documento que nos foi disponibilizado como exemplo.
 
 \section{Análise}
 
-Após o desenvolvimento do programa, a primeira análise feita foi atráves dos casos de teste disponibilizados na página do trabalho prático do run.codes, com simples exemplos de entrada e saída, executamos o programa com um dos exemplos de entrada e assim, foi possível fazer uma simples análise se o programa se comportava corretamente. Obtivemos algumas dificuldades que serão abordadas na conclusão. Após a implementação de outro método de ordenação, visto que o primeiro não foi eficiente, as próximas realizações de testes apresentaram resultados iguais ao exemplo de saída disponibilizado.
-Depois dos testes iniciais para verificar um funcionamento inicial do programa, utilizamos o valgrind, uma ferramenta de análise dinâmica de código para conferir se há algum memory leak ou warning referente a manipulação de memória.
+Após o desenvolvimento do programa, a primeira análise feita 
+foi atráves dos casos de teste disponibilizados na página do 
+trabalho prático do run.codes, com simples exemplos de entrada
+e saída, executamos o programa com um dos exemplos de entrada
+e assim, foi possível fazer uma simples análise se o programa
+se comportava corretamente. Obtivemos algumas dificuldades
+que serão abordadas na conclusão. Após a implementação
+de outro método de ordenação, visto que o primeiro não
+foi eficiente, as próximas realizações de testes apresentaram 
+resultados iguais ao exemplo de saída disponibilizado.
+Depois dos testes iniciais para verificar um funcionamento 
+inicial do programa, utilizamos o valgrind, uma ferramenta 
+de análise dinâmica de código para conferir se há algum memory 
+leak ou warning referente a manipulação de memória.
 
 
 \section{Conclusão}
 
-Com este trabalho ampliamos os nossos conhecimentos referente aos métodos de ordenação, em especial o shellSort, e como aplicá-lo para encontrar a solução de um problema.
-Como uma dificuldade inicial, tivemos a implementação do mergeSort que não gerou os resultados esperados, além de vários erros quando rodamos o valgrind.
+Com este trabalho ampliamos os nossos conhecimentos referente 
+aos métodos de ordenação, em especial o shellSort e mergeSort, e como aplicá-lo
+para encontrar a solução de um problema. 
+Como uma dificuldade inicial, tivemos a implementação do mergeSort 
+que não gerou os resultados esperados, além de vários erros quando 
+rodamos o valgrind. Esse erros eram devidos a liberação errônea do vetor auxiliar
+de objetos utilizados na função merge. Pois como faziamos uma atribuição de ponteiros
+o conteúdo dele não era copiado, apenas o ponteiro e ao realizar a liberação dele
+no final da função, era liberado o conteudo dos pontos causando um erro de double free e leitura inválida.
+Após um certo tempo, desistimos e utilizamos o shellSort. Porém após algum
+tempo pensando no problema, descobrimos nosso erro e decidimos reimplementar o mergeSort.
 
 \end{document}

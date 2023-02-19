@@ -9,7 +9,7 @@
 Ponto* alocaPontos (int npontos){
 
     Ponto *pontos = (Ponto*)malloc(npontos * sizeof(Ponto)); //Aloca o ponteiro com o espaço de número de pontos vezes o tamanho do tipo Ponto
-
+    
     return pontos;
 }
 
@@ -90,10 +90,10 @@ void realizaCalculos(Objeto *objetos, int nobj){
 //Método de ordenação mergesort
 void mergesort(Objeto *v, int l, int r, int npontos){
     if (l < r){
-        int m = (l + r)/2;
-        mergesort(v, l, m, npontos);
-        mergesort(v, m + 1, r, npontos);
-        merge(v, l, m, r, npontos);
+        int m = (l + r)/2; //M recebe o meio do vetor
+        mergesort(v, l, m, npontos); //Recursividade para continuar dividindo o vetor em metades
+        mergesort(v, m + 1, r, npontos); //Dividindo a outra metade do vetor
+        merge(v, l, m, r, npontos); //Chama a implementação de conquista do método de ordenação
 
     }
 }
@@ -101,42 +101,48 @@ void mergesort(Objeto *v, int l, int r, int npontos){
 //Implementação do mergesort
 void merge(Objeto *v, int l, int m, int r, int npontos){
 
-    int size_l = (m - l + 1);
-    int size_r = (r - m);
+    int size_l = (m - l + 1); //Recebe o tamanho do vetor da esquerda
+    int size_r = (r - m); //Recebe o tamanho do vetor da direita
 
 
-    //Porque não usar a função Alocar Objeto ?
+    /*Na atribuição entre duas structs o contéudo do ponteiro referente aos pontos 
+    não é copiado, apenas o ponteiro é copiado
+    A solução foi ao invés de chamar a função de alocar objetos, alocar manualente outros vetores
+    para não alocarmos um outro espaço de pontos, pois podemos usar apenas o seu ponteiro.
+    Quanto a liberação, se usássemos a função dos objetos, um double free ocorreria, ocasionando problemas*/
+
+
     Objeto *vet_l = malloc( size_l * sizeof(Objeto));
     Objeto *vet_r = malloc( size_r * sizeof(Objeto));
 
-
+    //copiando os elemntos do vetores principais para os sub elementos
     for (int i = 0; i < size_l; i++)
-        vet_l[i] = v[i + l];
+        vet_l[i] = v[i + l]; 
 
 
     for (int j = 0; j < size_r; j++)
         vet_r[j] = v[m + j + 1];
 
+    //Inicializando variáveis de controle com zero
     int i = 0; 
-    int j = 0;
+    int j = 0; 
 
     for (int k = l; k <= r; k++){
          
         if (i == size_l)
-            v[k] = vet_r[j++];
+            v[k] = vet_r[j++]; //se i for igual o tamanho do vetor da esquerda, j irá ser inserido e acrescentado, passando para o próximo indice
         
         else if (j == size_r)
-            v[k] = vet_l[i++];
+            v[k] = vet_l[i++]; //se j for igual o tamanho do vetor da direita, i irá ser inserido e acrescentado, passando para o próximo indice
 
         else if (comparaObjeto(&vet_l[i], &vet_r[j]))
-            v[k] = vet_r[j++];
+            v[k] = vet_r[j++]; //j irá aumentar 1 toda vez que o número do vetor da direita for menor, passando pro próximo indíce do vetor da esquerda
 
         else
-            v[k] = vet_l[i++];
+            v[k] = vet_l[i++]; //i irá aumentar 1 toda vez que o número do vetor da direita for menor, passando pro próximo indíce do vetor da direita
     }
 
-
-    //Porque não usar a função liberar objeto ?
+    //Liberando os vetores da direita e da esquerda alocados
     free(vet_l);
     free(vet_r);
 
@@ -145,29 +151,34 @@ void merge(Objeto *v, int l, int m, int r, int npontos){
 
 //Método de ordenação shellSort
 void shellSort(Objeto *objetos, int n) {
-	int h = 1;
+
+    if(n == 1){
+        return;
+    }
+
+	int h = 1; //Inicia com 1
     Objeto aux;
-    while( h < n)
-        h = 3 * h + 1;
+    while( h < n) //Pegando o valor inicial de h
+        h = 3 * h + 1;  //Seguindo o método de cálculo do shellSort
 
     do{
 
-        h = (h - 1)/3;
+        h = (h - 1)/3; //atualiza o valor de h
 
         for ( int i = h; i < n;i++){
-            aux = objetos[i]; 
+            aux = objetos[i];  //Recebe o objeto para comparação
             int j = i;
-            while(comparaObjeto(&objetos[j - h], &aux)){
-                objetos[j] = objetos[j-h];
+            while(comparaObjeto(&objetos[j - h], &aux)){ //Chama a função de comparar os valores
+                objetos[j] = objetos[j-h]; //Troca as posições
                 j = j - h;
                 if ( j < h){
-                    break;
+                    break; //Interrompe
                 }
             }
             objetos[j] = aux;
             
         }
-    } while ( h != 1); 
+    } while ( h != 1); //Repetição enquanto h for diferente de 1
 }
 
 //Compara os objetos da lista para a ordenação dos mesmos seguindo os parametros indicados pelo professor
@@ -175,21 +186,21 @@ void shellSort(Objeto *objetos, int n) {
 
 int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
 
-    if (definitelyGreaterThan(objeto1->distancia, objeto2->distancia)){
+    if (definitelyGreaterThan(objeto1->distancia, objeto2->distancia)){ //Se for maior, retorna zero
         return 0;
         
     } else if (definitelyLessThan(objeto1->distancia, objeto2->distancia)){
-        return 1;
+        return 1; //Se for menor, retorna 1
     } else {
 
         if (definitelyGreaterThan(objeto1->deslocamento, objeto2->deslocamento)) {
-            return 1;
+            return 1; //Se for maior, retorna zero
 
         } else if(definitelyLessThan(objeto1->deslocamento, objeto2->deslocamento)){
             return 0;
         } else{
             if(strcmp(objeto1->ID, objeto2->ID) > 0){
-                return 1;
+                return 1; //Se for menor, retorna 1
             } else {
                 return 0;
             }

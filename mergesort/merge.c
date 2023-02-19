@@ -16,7 +16,10 @@ void mergesort(int *v, int l, int r){
 void merge(int *v, int l, int m, int r){
 
     int size_l = (m - l + 1);
+    printf("sizeof l: %d\n", size_l);
     int size_r = (r - m);
+    printf("sizeof r: %d\n", size_r);
+    
     int *vet_l = (int*) malloc (size_l * sizeof(int));
     int *vet_r = (int*) malloc (size_r * sizeof(int));
 
@@ -38,7 +41,7 @@ void merge(int *v, int l, int m, int r){
         else if (j == size_r)
             v[k] = vet_l[i++];
 
-        else if (vet_l[i] < vet_r[j])
+        else if (vet_l[i] <= vet_r[j])
             v[k] = vet_l[i++];
 
         else
