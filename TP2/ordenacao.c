@@ -5,71 +5,65 @@
 #include "ordenacao.h"
 #include "compare_double.h"
 
-
-
-//TALVEZ DIVIDIR EM DUAS FUNÇÕES PARA ALOCAR
-//PENSAR SOBRE
-
+//Alocação dinâmica dos pontos do objeto   '
 Ponto* alocaPontos (int npontos){
 
-    Ponto *pontos = (Ponto*)malloc(npontos * sizeof(Ponto));
+    Ponto *pontos = (Ponto*)malloc(npontos * sizeof(Ponto)); //Aloca o ponteiro com o espaço de número de pontos vezes o tamanho do tipo Ponto
 
     return pontos;
 }
 
+//Alocação dinâmica dos objetos que também chama a função de alocar pontos
 Objeto* alocaObjetos (int npontos, int nobj){
 
     Objeto* objetos = (Objeto*)malloc(nobj * sizeof(Objeto));
 
-    for (int i = 0; i < nobj; i++){
+    for (int i = 0; i < nobj; i++){ 
 
-        objetos[i].npontos = npontos;
-        objetos[i].pontos = alocaPontos(npontos);
+        objetos[i].npontos = npontos; //Cada objeto receberá o numero de pontos que foi passado
+        objetos[i].pontos = alocaPontos(npontos); //Aloca os pontos de cada objeto
 
-        objetos[i].deslocamento = 0;
-        objetos[i].distancia = 0;
+        objetos[i].deslocamento = 0; //Zera o deslocamento de cada objeto
+        objetos[i].distancia = 0; //Zera a distância de cada objeto
 
     }
     
     return objetos;
 }
 
-
+//Liberando o espaço alocado para os pontos
 void desalocaPontos (Ponto *pontos){
-    free(pontos);
+    free(pontos); //Libera o ponteiro de pontos
 }
 
+//Liberando o espaço alocado para os objetos e chamando a função de liberar pontos
 void desalocaObjetos(Objeto **lista, int nobj){
-    
-
-    printf("-------------------DESALOCA------------\n");
-    for(int i = 0; i < nobj; i++){
-        desalocaPontos((*lista)[i].pontos);
-        printf("I: %d\n", i);
+    for(int i = 0; i < nobj; i++){ //Repetição para percorrer todo o número de objetos
+        desalocaPontos((*lista)[i].pontos); //Desalocando os pontos de cada objeto
     }
-    printf("-------------------------------\n");
-    free(*lista);
+    free(*lista); //Desalocando a lista
 }
 
-
+//Lendo e armazenando os pontos e suas coordenadas
 void lerPontos(Ponto* pontos, int npontos){
-    for (int i = 0; i < npontos; i++){
-        scanf("%d", &pontos[i].x);
-        scanf("%d", &pontos[i].y);
+    for (int i = 0; i < npontos; i++){ //Repetição para a leitura de cada cordenada de cada ponto
+        scanf("%d", &pontos[i].x); //Cordenada x
+        scanf("%d", &pontos[i].y); //Cordenada y
     }
 }
 
-
+//Lendo os objetos e chamando a função de ler pontos
 void lerObjetos(Objeto *lista, int nobj){
-    for(int i = 0; i < nobj; i++){
-        scanf("%s", lista[i].ID);
-        lerPontos(lista[i].pontos, lista->npontos);
+    for(int i = 0; i < nobj; i++){ //Repetição para ler todos os objetos
+        scanf("%s", lista[i].ID); //Leitura do ID da lista
+        lerPontos(lista[i].pontos, lista->npontos); //Chamando a função de ler pontos para cada objeto
     }
     
 }
 
+//Realiza o calculo da distânica entre os números de ponto
 double calcularDistancia (Objeto *objeto){
-    double distancia = 0;
+    double distancia = 0; // Inicia distancia com zero
     for(int i = 0; i < objeto->npontos - 1; i++){
         distancia += sqrt(pow((objeto->pontos[i+1].x - objeto->pontos[i].x), 2) 
         + pow((objeto->pontos[i+1].y - objeto->pontos[i].y), 2));
@@ -77,68 +71,54 @@ double calcularDistancia (Objeto *objeto){
     return distancia ;
 }
 
+//Calcula o deslocamento total dos pontos
 double calcularDeslocamento (Objeto *objeto){
     return sqrt(pow((objeto->pontos[objeto->npontos-1].x - objeto->pontos[0].x), 2) 
-    + pow((objeto->pontos[objeto->npontos-1].y - objeto->pontos[0].y), 2));
+    + pow((objeto->pontos[objeto->npontos-1].y - objeto->pontos[0].y), 2)); //Retorna o resultado do cálculo de deslocamento
 }
 
+//Chama as funções de cálculo de distância e deslocamento para cada objeto
 void realizaCalculos(Objeto *objetos, int nobj){
-    for (int i = 0; i < nobj; i++)
+    for (int i = 0; i < nobj; i++) //Repetição para percorrer cada objeto
     {
-        objetos[i].distancia = calcularDistancia(&objetos[i]);
-        objetos[i].deslocamento = calcularDeslocamento(&objetos[i]);
+        objetos[i].distancia = calcularDistancia(&objetos[i]); //Chama a função de calcular a distância para cada objeto
+        objetos[i].deslocamento = calcularDeslocamento(&objetos[i]); //Chama a função de calcular o deslocamento para cada objeto
     }
     
 }
 
+//Método de ordenação mergesort
 void mergesort(Objeto *v, int l, int r, int npontos){
     if (l < r){
-        printf("ODIO PROFUNDO\n");
         int m = (l + r)/2;
         mergesort(v, l, m, npontos);
         mergesort(v, m + 1, r, npontos);
         merge(v, l, m, r, npontos);
 
-
     }
 }
 
+//Implementação do mergesort
 void merge(Objeto *v, int l, int m, int r, int npontos){
 
     int size_l = (m - l + 1);
-    printf("sizeof l: %d\n", size_l);
-
     int size_r = (r - m);
-    printf("sizeof r: %d\n", size_r);
-    
-
-    Objeto *vet_l;
-    
-    Objeto *vet_r;
-
-    vet_l = alocaObjetos(npontos, size_l);
-    vet_r = alocaObjetos(npontos, size_r);
 
 
-    int i,j;
-    for (i = 0; i < size_l; i++)
+    //Porque não usar a função Alocar Objeto ?
+    Objeto *vet_l = malloc( size_l * sizeof(Objeto));
+    Objeto *vet_r = malloc( size_r * sizeof(Objeto));
+
+
+    for (int i = 0; i < size_l; i++)
         vet_l[i] = v[i + l];
 
-    printf("---------VET L------\n");
-    imprime(vet_l, size_l);
-    printf("---------------\n");
 
-
-    for (j = 0; j < size_r; j++)
+    for (int j = 0; j < size_r; j++)
         vet_r[j] = v[m + j + 1];
 
-    i = 0; 
-    j = 0;
-
-    printf("---------VET R------\n");
-    imprime(vet_r, size_r);
-    printf("---------------\n");
-
+    int i = 0; 
+    int j = 0;
 
     for (int k = l; k <= r; k++){
          
@@ -149,17 +129,21 @@ void merge(Objeto *v, int l, int m, int r, int npontos){
             v[k] = vet_l[i++];
 
         else if (comparaObjeto(&vet_l[i], &vet_r[j]))
-            v[k] = vet_l[i++];
+            v[k] = vet_r[j++];
 
         else
-            v[k] = vet_r[j++];
+            v[k] = vet_l[i++];
     }
 
-    // desalocaObjetos(&vet_l,size_l);
-    // desalocaObjetos(&vet_r,size_r);
+
+    //Porque não usar a função liberar objeto ?
+    free(vet_l);
+    free(vet_r);
 
 }
 
+
+//Método de ordenação shellSort
 void shellSort(Objeto *objetos, int n) {
 	int h = 1;
     Objeto aux;
@@ -186,6 +170,9 @@ void shellSort(Objeto *objetos, int n) {
     } while ( h != 1); 
 }
 
+//Compara os objetos da lista para a ordenação dos mesmos seguindo os parametros indicados pelo professor
+// e tomando cuidado ao comparar 2 variaveis do tipo double
+
 int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
 
     if (definitelyGreaterThan(objeto1->distancia, objeto2->distancia)){
@@ -211,34 +198,9 @@ int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
     }
 }
 
-
-int comparaObjetoMerge(Objeto *objeto1, Objeto *objeto2){
-
-    if (definitelyGreaterThan(objeto1->distancia, objeto2->distancia)){
-        return 1;
-        
-    } else if (definitelyLessThan(objeto1->distancia, objeto2->distancia)){
-        return 0;
-    } else {
-
-        if (definitelyGreaterThan(objeto1->deslocamento, objeto2->deslocamento)) {
-            return 1;
-
-        } else if(definitelyLessThan(objeto1->deslocamento, objeto2->deslocamento)){
-            return 0;
-        } else{
-            if(strcmp(objeto1->ID, objeto2->ID) > 0){
-                return 1;
-            } else {
-                return 0;
-            }
-        }
-        
-    }
-}
-
+//Imprime os intens da lista com o resultado de deslocamento e distância
 void imprime (Objeto *lista, int nobj){
-    for(int i = 0; i < nobj; i++){
-        printf("%s %.2lf %.2lf\n", lista[i].ID, lista[i].distancia,lista[i].deslocamento);
+    for(int i = 0; i < nobj; i++){ //Repetição para percorrer cada objeto
+        printf("%s %.2lf %.2lf\n", lista[i].ID, lista[i].distancia,lista[i].deslocamento); //Imprime todas as informações de cada item da lista
     }
 }

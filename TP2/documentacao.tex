@@ -1,0 +1,425 @@
+\documentclass{article}
+
+\input{setup}
+
+\begin{document}
+
+\CAPA{Trabalho Prático II}{BCC202 - Estruturas de Dados I}{Vitor Oliveira Diniz}{Maria Luiza Aragão}{Jéssica Machado}{Pedro Silva}
+
+
+
+\section{Introdução}
+
+Neste trabalho foi necessário entregar o código em C e um relatório referente ao que foi desenvolvido. O algoritmo a ser desenvolvido é uma ordenação de objetos móveis com base em sua trajetória.
+
+A codificação foi feita em C, usando somente a biblioteca padrão da GNU, sem o uso de bibliotecas adicionais.
+
+
+\subsection{Especificações do problema}
+
+No contexto de objetos móveis, as trajetórias são um conjunto de pontos das posições ocupadas pelo objeto durante seu movimento. 
+Uma trajetória pode ser representada em função de uma sequência de dois ou mais pontos com coordenadas (x,y) distintas. Assim, devemos, com base em uma lista de objetos móveis e o total de pontos de cada trajetória,  ambos quantativamente desconhecidos, 
+ordenar a lista de saída nos baseando nas seguintes regras:
+
+\begin{itemize}
+    \item decrescentemente, com base na distância percorrida;
+    \item crescentemente, com base no o deslocamento e nome, respectivamente, caso haja empate no item anterior.
+\end{itemize}
+
+\subsection{Considerações Iniciais}
+Algumas ferramentas foram utilizadas durante a criação deste projeto:
+
+\begin{itemize}
+  \item Ambiente de desenvolvimento do código fonte: Visual Studio Code.
+  \item Linguagem utilizada: C.
+  \item Ambiente de desenvolvimento da documentação: Visual Studio Code \LaTeX Workshop.
+\end{itemize}
+
+\subsection{Ferramentas utilizadas}
+Algumas ferramentas foram utilizadas para testar a implementação, como:
+
+\begin{itemize}
+    \item[-] \textit{CLANG}: ferramentas de análise estática do código.
+    \item[-] \textit{Valgrind}: ferramentas de análise dinâmica do código.
+\end{itemize}
+
+\subsection{Especificações da máquina}
+A máquina onde o desenvolvimento e os testes foram realizados possui a seguinte configuração:
+
+\begin{itemize}
+    \item[-] Processador: Ryzen 7-5800H.
+    \item[-] Memória RAM: 16 Gb.
+    \item[-] Sistema Operacional: Arch Linux x86\_64.
+\end{itemize}
+
+
+\subsection{Instruções de compilação e execução}
+
+Para a compilação do projeto, basta digitar:
+
+\begin{tcolorbox}[title=Compilando o projeto,width=\linewidth]
+    gcc -c orenacao.c -Wall \newline
+    gcc -c tp.c -Wall \newline
+    gcc  -g ordenacao.o tp.o -o exe
+\end{tcolorbox}
+
+Usou-se para a compilação as seguintes opções:
+
+\begin{itemize}
+    \item [-] \emph{-g}: para compilar com informação de depuração e ser usado pelo Valgrind.
+    \item [-] \emph{-Wall}: para mostrar todos os possível \emph{warnings} do código.
+    \item [-] \emph{-c}: Para compilar o arquivo sem linkar os arquivos para obtermos um arquivo do tipo objeto.
+\end{itemize}
+
+Para a execução do programa basta digitar:
+\begin{tcolorbox}[title=,width=\linewidth]
+    ./exe $<$ caminho\_até\_o\_arquivo\_de\_entrada
+\end{tcolorbox}
+
+Onde “caminho-até-o-arquivo-de-entrada” pode ser: “1.in” para realizar o primeiro caso de teste e “2.in” para realizar o segundo.
+
+\clearpage
+
+
+
+\section{Desenvolvimento}
+
+Seguindo as boas práticas de programação, implementamos um tipo abstrato de dados ( TAD ) para a representação do nosso problema. De acordo com o pedido, e para uma melhor organização, o nosso código foi modularizado em três arquivos, tp.c ordenacao.h e ordenacao.c em que o arquivo tp.c deve apenas invocar e tratar as respostas das funções e procedimentos definidos no arquivo ordenacao.h.
+
+\subsection{TAD}
+Para começar a resolução do problema proposto, decidimos criar duas structs, que representariam o nosso objeto e seriam nosso TAD. O primeiro, struct Ponto, que nos informaria, com base no plano cartesiano, as coordenadas do Objeto, 
+nossa segunda struct, que contém informações necessárias para distinguir um objeto do outro.
+
+\begin{lstlisting}[caption={TAD's representando Ponto e Objeto, respectivamente},label={lst:cod1},language=C]
+
+typedef struct{
+    int x;
+    int y;
+}Ponto;
+
+typedef struct{
+    char ID[5];
+    Ponto *pontos;
+    int npontos;
+    double distancia;
+    double deslocamento;
+}Objeto;
+
+\end{lstlisting}
+
+\subsection{Funções}
+
+A seguir entraremos em detalhe sobre as principais funções utilizadas no programa.
+
+\subsubsection{alocaPontos}
+
+Criamos essa função para alocar, dinâmicamente, vários pontos.
+
+\begin{lstlisting}[caption={Função alocaPontos},label={lst:cod2},language=C]
+
+Ponto* alocaPontos (int npontos){
+
+    Ponto *pontos = (Ponto*)malloc(npontos * sizeof(Ponto));
+    return pontos;
+}
+
+\end{lstlisting}
+
+\subsubsection{alocaObjetos}
+
+Essa função aloca dinâmicamente um número X de objetos. Em seguida, com a ajuda de
+uma estrutura de repetição, adicionamos em cada um dos objetos o número de pontos,
+alocamos os pontos e definimos o valor inicial do deslocamento e da distância.
+
+\begin{lstlisting}[caption={Função alocaObjetos},label={lst:cod3},language=C]
+
+Objeto* alocaObjetos (int npontos, int nobj){
+
+    Objeto* objetos = (Objeto*)malloc(nobj * sizeof(Objeto));
+
+    for (int i = 0; i < nobj; i++){
+
+        objetos[i].npontos = npontos;
+        objetos[i].pontos = alocaPontos(npontos);
+
+        objetos[i].deslocamento = 0;
+        objetos[i].distancia = 0;
+
+    }
+    
+    return objetos;
+}
+    
+    \end{lstlisting}
+
+\subsubsection{desalocaPontos e desalocaObjetos}
+Esta função foi implementada com o objetivo de liberar o espaço de memória que alocamos para o ponto e o objeto.
+
+\begin{lstlisting}[caption={Funções desalocaPontos e desalocaObjetos},label={lst:cod4},language=C]
+void desalocaPontos (Ponto *pontos){
+    free(pontos);
+}
+    
+void desalocaObjetos(Objeto **lista, int nobj){
+    
+    for(int i = 0; i < nobj; i++){
+        desalocaPontos((*lista)[i].pontos);
+        printf("I: %d\n", i);
+    }
+    free(*lista);
+}
+
+\end{lstlisting}
+
+
+\subsubsection{lerPontos e lerObjetos}
+
+Na função lerPontos, utilizamos uma estrutura de repetição que se repete até o número de pontos (npontos), váriavel passada por parâmetro, e, em cada um dos pontos, pegamos o valor de X e Y.
+\\Já na função lerObjetos, a extrutura de repetição aconteceria até o número de objetos (nobj), também passada por parâmetro, e com o scanf pegariamos o ID do objeto e o valor de seus pontos, utilizando a função lerPontos
+
+\begin{lstlisting}[caption={Funções lerPontos e lerObjetos},label={lst:cod5},language=C]
+void lerPontos(Ponto* pontos, int npontos){
+    for (int i = 0; i < npontos; i++){
+        scanf("%d", &pontos[i].x);
+        scanf("%d", &pontos[i].y);
+    }
+}
+    
+    
+void lerObjetos(Objeto *lista, int nobj){
+    for(int i = 0; i < nobj; i++){
+        scanf("%s", lista[i].ID);
+        lerPontos(lista[i].pontos, lista->npontos);
+    }
+        
+}
+
+\end{lstlisting}
+
+\subsubsection{calcularDistancia e calcularDeslocamento}
+
+Para o cálculo dessas funções, utilizamos as fórmulas, já conhecidas, da distância e do deslocamento, e as funções da biblioteca math.h, que facilitou muito nossas contas.
+
+\begin{lstlisting}[caption={Funções calcularDistancia e calcularDeslocamento},label={lst:cod6},language=C]
+
+double calcularDistancia (Objeto *objeto){
+    double distancia = 0;
+    for(int i = 0; i < objeto->npontos - 1; i++){
+        distancia += sqrt(pow((objeto->pontos[i+1].x - objeto->pontos[i].x), 2) + pow((objeto->pontos[i+1].y - objeto->pontos[i].y), 2));
+    }
+    return distancia ;
+}
+    
+double calcularDeslocamento (Objeto *objeto){
+    return sqrt(pow((objeto->pontos[objeto->npontos-1].x - objeto->pontos[0].x), 2) 
++ pow((objeto->pontos[objeto->npontos-1].y - objeto->pontos[0].y), 2));
+}
+
+\end{lstlisting}
+
+
+\subsubsection{realizaCalculos}
+
+Utilizando uma estrutura de repetição, mudamos os valores da distância e do deslocamento de cada um dos objetos utilizando as funções calcularDistancia e calcularDeslocamento, anteriormente explicadas.
+
+\begin{lstlisting}[caption={Função realizaCalculos},label={lst:cod7},language=C]
+void realizaCalculos(Objeto *objetos, int nobj){
+    for (int i = 0; i < nobj; i++)
+    {
+        objetos[i].distancia = calcularDistancia(&objetos[i]);
+        objetos[i].deslocamento = calcularDeslocamento(&objetos[i]);
+    }
+   
+}
+    
+\end{lstlisting}
+
+\subsubsection{comparaObjeto}
+
+Função necessária para fazer a comparação necessária no shellSort, optamos por fazer uma função separada para que o código ficasse
+legível e mais arrumado. As funções utilizadas nessa função estão presentes no "compare\_double.c".
+
+\begin{lstlisting}[caption={Função comparaObjetos},label={lst:cod7},language=C]
+
+int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
+
+    if (definitelyGreaterThan(objeto1->distancia, objeto2->distancia)){
+        return 0;
+        
+    } else if (definitelyLessThan(objeto1->distancia, objeto2->distancia)){
+        return 1;
+    } else {
+
+        if (definitelyGreaterThan(objeto1->deslocamento, objeto2->deslocamento)) {
+            return 1;
+
+        } else if(definitelyLessThan(objeto1->deslocamento, objeto2->deslocamento)){
+            return 0;
+        } else{
+            if(strcmp(objeto1->ID, objeto2->ID) > 0){
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+        
+    }
+}
+    
+\end{lstlisting}
+
+\subsubsection{shellSort}
+
+Para ordenação, optamos por utilizar o método shellSort.
+
+\begin{lstlisting}[caption={Função shellSort},label={lst:cod7},language=C]
+
+void shellSort(Objeto *objetos, int n) {
+    int h = 1;
+    Objeto aux;
+    while( h < n)
+        h = 3 * h + 1;
+
+    do{
+
+        h = (h - 1)/3;
+
+        for ( int i = h; i < n;i++){
+            aux = objetos[i]; 
+            int j = i;
+            while(comparaObjeto(&objetos[j - h], &aux)){
+                objetos[j] = objetos[j-h];
+                j = j - h;
+                if ( j < h){
+                    break;
+                }
+            }
+            objetos[j] = aux;
+            
+        }
+    } while ( h != 1); 
+}
+    
+\end{lstlisting}
+
+\subsubsection{merge}
+
+Implementamos também a função merge e mergeSort
+
+\begin{lstlisting}[caption={Função merge},label={lst:cod7},language=C]
+
+    void merge(Objeto *v, int l, int m, int r, int npontos){
+
+    int size_l = (m - l + 1);
+    int size_r = (r - m);
+
+
+    //porque tem que ser malloc ?
+    Objeto *vet_l = malloc( size_l * sizeof(Objeto));
+    Objeto *vet_r = malloc( size_r * sizeof(Objeto));
+
+
+    for (int i = 0; i < size_l; i++)
+        vet_l[i] = v[i + l];
+
+
+    for (int j = 0; j < size_r; j++)
+        vet_r[j] = v[m + j + 1];
+
+
+
+    int i = 0; 
+    int j = 0;
+
+    for (int k = l; k <= r; k++){
+         
+        if (i == size_l)
+            v[k] = vet_r[j++];
+        
+        else if (j == size_r)
+            v[k] = vet_l[i++];
+
+        else if (comparaObjeto(&vet_l[i], &vet_r[j]))
+            v[k] = vet_r[j++];
+
+        else
+            v[k] = vet_l[i++];
+    }
+
+    free(vet_l);
+    free(vet_r);
+
+}
+    
+\end{lstlisting}
+
+\subsubsection{mergeSort}
+
+Implementamos também a função merge e mergeSort
+
+\begin{lstlisting}[caption={Função mergeSort},label={lst:cod7},language=C]
+
+void mergesort(Objeto *v, int l, int r, int npontos){
+    if (l < r){
+        int m = (l + r)/2;
+        mergesort(v, l, m, npontos);
+        mergesort(v, m + 1, r, npontos);
+        merge(v, l, m, r, npontos);
+
+    }
+}
+
+    
+\end{lstlisting}
+
+\clearpage
+\subsection{main}
+
+Na função main, além de utilizarmos o scanf para obter o nobj e npontos, invocamos as funções necessárias para a realização dos procedimentos, sendo eles: a alocação dos objetos, a leitura deles, os cálculos necessários, a ordenação da lista, sua impressão e por último, desalocação.
+
+\begin{lstlisting}[caption={função main},label={lst:cod11},language=C]
+
+#include <stdio.h>
+#include "ordenacao.h"
+
+int main(void){
+
+    Objeto *lista;
+    int npontos, nobj;
+
+    scanf("%d%d", &nobj, &npontos);
+
+    lista = alocaObjetos(npontos, nobj);
+    lerObjetos(lista, nobj);
+
+    realizaCalculos(lista, nobj);
+    //mergesort(lista, 0, npontos - 1, npontos);
+    shellSort(lista, nobj);
+    imprime(lista, nobj);
+    desalocaObjetos(&lista, nobj);
+
+    return 0;
+}
+
+\end{lstlisting}
+
+\clearpage
+
+
+\section{Impressões Gerais}
+
+Com as funções já pré definidas foi muito mais fácil construir a lógica para o desenvolvimento modular do código. O nosso grupo então se reuniu e pensou coletivamente sobre a ordem de execução das funções e suas utilidades.
+Outro conhecimento adquirido e posto em prática foi o uso do shellSort, método de ordenação, para a solução do nosso problema. Houve também o desenvolvimento de um código bem modularizado, com uma excelente ajuda das instruções contidas no documento que nos foi disponibilizado como exemplo.
+
+\section{Análise}
+
+Após o desenvolvimento do programa, a primeira análise feita foi atráves dos casos de teste disponibilizados na página do trabalho prático do run.codes, com simples exemplos de entrada e saída, executamos o programa com um dos exemplos de entrada e assim, foi possível fazer uma simples análise se o programa se comportava corretamente. Obtivemos algumas dificuldades que serão abordadas na conclusão. Após a implementação de outro método de ordenação, visto que o primeiro não foi eficiente, as próximas realizações de testes apresentaram resultados iguais ao exemplo de saída disponibilizado.
+Depois dos testes iniciais para verificar um funcionamento inicial do programa, utilizamos o valgrind, uma ferramenta de análise dinâmica de código para conferir se há algum memory leak ou warning referente a manipulação de memória.
+
+
+\section{Conclusão}
+
+Com este trabalho ampliamos os nossos conhecimentos referente aos métodos de ordenação, em especial o shellSort, e como aplicá-lo para encontrar a solução de um problema.
+Como uma dificuldade inicial, tivemos a implementação do mergeSort que não gerou os resultados esperados, além de vários erros quando rodamos o valgrind.
+
+\end{document}

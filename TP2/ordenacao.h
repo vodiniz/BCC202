@@ -32,8 +32,6 @@ void merge(Objeto *objetos, int l, int m, int r, int npontos);
 void shellSort(Objeto *objetos, int n);
 
 int comparaObjeto(Objeto*, Objeto*);
-int comparaObjetoMerge(Objeto*, Objeto*);
-
 
 void imprime (Objeto *lista, int nobj);
 
