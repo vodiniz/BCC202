@@ -93,10 +93,12 @@ void realizaCalculos(Objeto *objetos, int nobj){
 
 void mergesort(Objeto *v, int l, int r, int npontos){
     if (l < r){
+        printf("ODIO PROFUNDO\n");
         int m = (l + r)/2;
         mergesort(v, l, m, npontos);
         mergesort(v, m + 1, r, npontos);
         merge(v, l, m, r, npontos);
+
 
     }
 }
@@ -110,10 +112,12 @@ void merge(Objeto *v, int l, int m, int r, int npontos){
     printf("sizeof r: %d\n", size_r);
     
 
-    Objeto *vet_l = alocaObjetos(npontos, size_l);
+    Objeto *vet_l;
+    
+    Objeto *vet_r;
 
-    Objeto *vet_r = alocaObjetos(npontos, size_r);
-
+    vet_l = alocaObjetos(npontos, size_l);
+    vet_r = alocaObjetos(npontos, size_r);
 
 
     int i,j;
@@ -151,11 +155,10 @@ void merge(Objeto *v, int l, int m, int r, int npontos){
             v[k] = vet_r[j++];
     }
 
-    desalocaObjetos(&vet_l,size_l);
-    desalocaObjetos(&vet_r,size_r);
+    // desalocaObjetos(&vet_l,size_l);
+    // desalocaObjetos(&vet_r,size_r);
 
 }
-
 
 void shellSort(Objeto *objetos, int n) {
 	int h = 1;
@@ -183,13 +186,8 @@ void shellSort(Objeto *objetos, int n) {
     } while ( h != 1); 
 }
 
-
-
 int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
 
-
-
-    //perigoso comparar doubles, ficar esperto 
     if (definitelyGreaterThan(objeto1->distancia, objeto2->distancia)){
         return 0;
         
@@ -238,10 +236,6 @@ int comparaObjetoMerge(Objeto *objeto1, Objeto *objeto2){
         
     }
 }
-
-
-
-
 
 void imprime (Objeto *lista, int nobj){
     for(int i = 0; i < nobj; i++){
