@@ -6,9 +6,15 @@ int main(void){
     Objeto *lista; //Cria a lista do tipo Objeto
     int npontos, nobj;
 
-    scanf("%d%d", &nobj, &npontos); //Recebe a quantidade de objetos e de pontos que eles possuem
+    validaEntrada(&nobj, &npontos);
+    lista = alocaObjetos(nobj, npontos); //Lista recebe sua alocação
 
-    lista = alocaObjetos(npontos, nobj); //Lista recebe sua alocação
+
+
+    if (lista ==NULL){
+        printf("Falha na alocação do vetor. Saindo do programa");
+        return 0;
+    }
     lerObjetos(lista, nobj); //Chama a função e leitura das informações de cada objeto
 
 

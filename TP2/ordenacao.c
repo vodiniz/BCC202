@@ -1,9 +1,24 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include "ordenacao.h"
-#include "compare_double.h"
+
+
+void validaEntrada(int *numero_objetos, int *numero_pontos){
+    
+    //Recebe a quantidade de objetos e de pontos que eles possuem
+    scanf("%d %d", numero_objetos, numero_pontos); //Recebe a quantidade de objetos e de pontos que eles possuem
+
+
+    while(*numero_objetos <= 0 || *numero_pontos <= 0 ){
+        printf("O numero de entrada para pontos e objetos é inválido. Por favor digite novamente.\n");
+        scanf("%d %d", numero_objetos, numero_pontos); //Recebe a quantidade de objetos e de pontos que eles possuem
+    }
+
+}
+
 
 //Alocação dinâmica dos pontos do objeto   '
 Ponto* alocaPontos (int npontos){
@@ -14,7 +29,7 @@ Ponto* alocaPontos (int npontos){
 }
 
 //Alocação dinâmica dos objetos que também chama a função de alocar pontos
-Objeto* alocaObjetos (int npontos, int nobj){
+Objeto* alocaObjetos (int nobj, int npontos ){
 
     Objeto* objetos = (Objeto*)malloc(nobj * sizeof(Objeto));
 
@@ -180,6 +195,20 @@ void shellSort(Objeto *objetos, int n) {
         }
     } while ( h != 1); //Repetição enquanto h for diferente de 1
 }
+
+
+bool approximatelyEqual(double a, double b){
+    return fabs(a - b) <= precision;
+}
+
+bool definitelyGreaterThan(double a, double b){
+    return (a - b) > precision;
+}
+
+bool definitelyLessThan(double a, double b){
+    return (b - a) > precision;
+}
+
 
 //Compara os objetos da lista para a ordenação dos mesmos seguindo os parametros indicados pelo professor
 // e tomando cuidado ao comparar 2 variaveis do tipo double

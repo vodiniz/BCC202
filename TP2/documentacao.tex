@@ -58,10 +58,9 @@ A máquina onde o desenvolvimento e os testes foram realizados possui a seguinte
 Para a compilação do projeto, basta digitar:
 
 \begin{tcolorbox}[title=Compilando o projeto,width=\linewidth]
-    gcc tp.o ordenacao.o compare$\_$double.o -o exe -g -Wall -lm\newline
+    gcc tp.o ordenacao.o -o exe -g -Wall -lm\newline
     gcc tp.c -c -g -lm\newline
     gcc ordenacao.c -c -g -lm -Wall\newline
-    gcc compare$\_$double.c -c -g -lm -Wall
 \end{tcolorbox}
 
 Usou-se para a compilação as seguintes opções:
@@ -90,8 +89,8 @@ Onde “caminho-até-o-arquivo-de-entrada” pode ser: “1.in” para realizar 
 
 Seguindo as boas práticas de programação, implementamos um tipo abstrato de dados 
 ( TAD ) para a representação do nosso problema. De acordo com o pedido, e para uma 
-melhor organização, o nosso código foi modularizado em cinco arquivos, tp.c ordenacao.h,
-ordenacao.c, compare$\_$doubles.c e compare$\_$doubles.h em que o arquivo tp.c deve apenas invocar e tratar as respostas das funções e 
+melhor organização, o nosso código foi modularizado em três arquivos, tp.c ordenacao.h e
+ordenacao.c em que o arquivo tp.c deve apenas invocar e tratar as respostas das funções e 
 procedimentos definidos no arquivo ordenacao.h.
 
 \subsection{TAD}
@@ -121,6 +120,29 @@ typedef struct{
 \subsection{Funções}
 
 A seguir entraremos em detalhe sobre as principais funções utilizadas no programa.
+
+
+\subsubsection{validaEntrada}
+
+Criamos essa função para alocar dinâmicamente, vários pontos, baseado em um valor digitado pelo usuário.
+
+\begin{lstlisting}[caption={Função validaEntrada},label={lst:cod2},language=C]
+
+    void validaEntrada(int *numero_objetos, int *numero_pontos){
+    
+    //Recebe a quantidade de objetos e de pontos que eles possuem
+    scanf("%d %d", numero_objetos, numero_pontos); //Recebe a quantidade de objetos e de pontos que eles possuem
+
+
+    while(*numero_objetos <= 0 || *numero_pontos <= 0 ){
+        printf("O numero de entrada para pontos e objetos e invalido. Por favor digite novamente.\n");
+        scanf("%d %d", numero_objetos, numero_pontos); //Recebe a quantidade de objetos e de pontos que eles possuem
+    }
+
+}
+\end{lstlisting}
+
+
 
 \subsubsection{alocaPontos}
 
@@ -250,8 +272,7 @@ void realizaCalculos(Objeto *objetos, int nobj){
 Função necessária para fazer a comparação necessária de nossos TADs, seguindo as regras
 definidas no trabalho. Optamos por fazer uma função separada 
 para que o código ficasse mais legível e modularizado. 
-As funções utilizadas nessa função estão presentes no 
-"compare\_double.c".
+
 
 \begin{lstlisting}[caption={Função comparaObjetos},label={lst:cod7},language=C]
 
@@ -401,23 +422,29 @@ Na função main, além de utilizarmos o scanf para obter o nobj e npontos, invo
 
 int main(void){
 
-    Objeto *lista;
+    Objeto *lista; //Cria a lista do tipo Objeto
     int npontos, nobj;
 
-    scanf("%d%d", &nobj, &npontos);
+    validaEntrada(&nobj, &npontos);
+    lista = alocaObjetos(nobj, npontos); //Lista recebe sua alocacao
 
-    lista = alocaObjetos(npontos, nobj);
-    lerObjetos(lista, nobj);
 
-    realizaCalculos(lista, nobj);
-    //mergesort(lista, 0, npontos - 1, npontos);
-    shellSort(lista, nobj);
-    imprime(lista, nobj);
-    desalocaObjetos(&lista, nobj);
+
+    if (lista ==NULL){
+        printf("Falha na alocacao do vetor. Saindo do programa");
+        return 0;
+    }
+    lerObjetos(lista, nobj); //Chama a funcao de leitura das informacoes de cada objeto
+
+
+    realizaCalculos(lista, nobj); //Realiza todos os calculos necessarios
+    mergesort(lista, 0, nobj - 1, npontos); //Chama o metodo de ordenacao
+    // shellSort(lista, nobj);
+    imprime(lista, nobj); //Imprime as informacoes
+    desalocaObjetos(&lista, nobj); //Desaloca toda memoria reservada
 
     return 0;
-}
-
+    }
 \end{lstlisting}
 
 \clearpage
@@ -435,7 +462,7 @@ Inicialmente, obtivemos um pouco de dificuldade na implementação do MergeSort 
 pela implementação do ShellSort, porém depois com um pouco de dificuldade conseguimos resolver o problema
 e optamos por deixar os dois métodos no trabalho.
 Tambêm tivemos um leve problema com a comparação de números de pontos flututantes, em que foi necessário uma pequena
-pausa no trabalho para que pudessemos pensar em uma solução. Foi ai que surgiu o compare$\_$doubles.h.
+pausa no trabalho para que pudessemos pensar em uma solução. Foi ai que surgiu nossas funções de comparação para doubles.
 Assim houve também o desenvolvimento de um código bem modularizado, 
 com uma excelente ajuda das instruções contidas no documento que nos foi disponibilizado como exemplo.
 
