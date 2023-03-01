@@ -1,8 +1,9 @@
 #include "ordenacao.h"
 #include <stdio.h>
 
-int main()
-{
+int main(){
+
+    int first_loop = 1;
     int instancia = 1;
     //enquanto houver dados
     while (1) {
@@ -13,10 +14,16 @@ int main()
 
         //leia o numero de times
         scanf("%d", &n);
-
         //se for zero, o programa acaba
-        if(n <= 0)
+        if(n <= 0){
+            printf("\n");
             return 0;
+        }
+        if (!first_loop)
+            printf("\n\n");
+        else
+            first_loop = 0;
+
 
         //aloque o vetor
         vetor = alocaVetor(n);
@@ -45,9 +52,14 @@ int main()
         // imprima o resultado
 
         printf("Instancia %d\n", instancia);
-        for ( int i = 0; i < n; i++)
-            printf("%d ", vetor[i].id);
-        printf("\n\n");
+        for ( int i = 0; i < n; i++){
+            
+            if (i < n - 1)
+                printf("%d ", vetor[i].id);
+            else 
+                printf("%d", vetor[i].id);
+        }
+        // printf("\n");
 
         // desaloque o vetor
         desalocaVetor(&vetor);
