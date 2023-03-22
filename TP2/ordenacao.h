@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define TAM_ID 5
-#define precision 0.01
+#define precision 0.00657271
 
 
 typedef struct{

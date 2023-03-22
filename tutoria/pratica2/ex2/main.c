@@ -9,9 +9,9 @@ int main(){
     int soma = soma_r9(num);
 
     if ( !(soma % 9))
-        printf("%lld is a multiple of 9.\n", num);
+        printf("%lld is a multiple of 9\n", num);
     else 
-        printf("%lld is not a multiple of 9.\n", num);
+        printf("%lld is not a multiple of 9\n", num);
 
     }
 

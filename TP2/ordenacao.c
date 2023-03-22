@@ -143,18 +143,24 @@ void merge(Objeto *v, int l, int m, int r, int npontos){
     int j = 0; 
 
     for (int k = l; k <= r; k++){
-         
+
+        // printf("Comparando %s e %s\n", vet_l[i].ID, vet_r[j].ID);
+
         if (i == size_l)
             v[k] = vet_r[j++]; //se i for igual o tamanho do vetor da esquerda, j irá ser inserido e acrescentado, passando para o próximo indice
         
         else if (j == size_r)
             v[k] = vet_l[i++]; //se j for igual o tamanho do vetor da direita, i irá ser inserido e acrescentado, passando para o próximo indice
 
-        else if (comparaObjeto(&vet_l[i], &vet_r[j]))
+        else if (comparaObjeto(&vet_l[i], &vet_r[j])){
             v[k] = vet_r[j++]; //j irá aumentar 1 toda vez que o número do vetor da direita for menor, passando pro próximo indíce do vetor da esquerda
-
-        else
+            // printf("Objeto %s maior que %s\n",v[k].ID, vet_l[i].ID);
+        }
+        else{
             v[k] = vet_l[i++]; //i irá aumentar 1 toda vez que o número do vetor da direita for menor, passando pro próximo indíce do vetor da direita
+            // printf("Objeto %s menor que %s\n",vet_r[j].ID, v[k].ID);
+
+        }
     }
 
     //Liberando os vetores da direita e da esquerda alocados
@@ -241,6 +247,8 @@ int comparaObjeto(Objeto *objeto1, Objeto *objeto2){
 //Imprime os intens da lista com o resultado de deslocamento e distância
 void imprime (Objeto *lista, int nobj){
     for(int i = 0; i < nobj; i++){ //Repetição para percorrer cada objeto
-        printf("%s %.2lf %.2lf\n", lista[i].ID, lista[i].distancia,lista[i].deslocamento); //Imprime todas as informações de cada item da lista
+        // printf("%s %lf %lf\n", lista[i].ID, lista[i].distancia,lista[i].deslocamento); //Imprime todas as informações de cada item da lista
+        printf("%s %0.2lf %0.2lf\n", lista[i].ID, lista[i].distancia,lista[i].deslocamento); //Imprime todas as informações de cada item da lista
+
     }
 }
