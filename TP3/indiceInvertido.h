@@ -35,7 +35,7 @@ void imprime(IndiceInvertido);
 //void sort(NomeDocumento*, int);
 
 
-void adicionarChaves(IndiceInvertido, Chave*, int);
+void adicionarChaves(IndiceInvertido, Chave*, int, int*);
 int chaveEhVazia(Chave);
 
 

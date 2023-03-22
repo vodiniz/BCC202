@@ -173,7 +173,7 @@ void imprime(IndiceInvertido indiceInvertido){
 //void sort(NomeDocumento* nomeDocumento, int qtdDocumentos);
 
 //adiciona chaves na tabela
-void adicionarChaves(IndiceInvertido indiceInvertido, Chave *chaves, int qtdChaves){
+void adicionarChaves(IndiceInvertido indiceInvertido, Chave *chaves, int qtdChaves, int *contador){
 
 
     for (int i = 0; i < qtdChaves; i++){
@@ -190,6 +190,7 @@ void adicionarChaves(IndiceInvertido indiceInvertido, Chave *chaves, int qtdChav
             }
 
             indice++;
+            (*contador)++;
         }
 
         if(chaveDuplicada)

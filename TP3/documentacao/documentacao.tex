@@ -1,0 +1,545 @@
+\documentclass{article}
+
+\input{setup}
+
+\begin{document}
+
+\CAPA{Trabalho Prático III}{BCC202 - Estruturas de Dados I}{Vitor Oliveira Diniz}{Maria Luiza Aragão}{Jéssica Machado}{Pedro Silva}
+
+
+
+\section{Introdução}
+
+Neste trabalho foi necessário entregar o código em C e um relatório referente ao que foi desenvolvido. O algoritmo a ser desenvolvido é a construção de um índice invertido
+utilizando tabela hash como uma forma de pesquisar um ou mais documentos em um banco de dados textual.
+
+A codificação foi feita em C, usando somente a biblioteca padrão da GNU, sem o uso de bibliotecas adicionais.
+
+
+\subsection{Especificações do problema}
+
+Um banco de dados textual é uma coleção de documentos onde cada documento é constituído por uma lista de palavras. Uma estratégia de pesquisa de
+documentos é comparar a lista de palavras da consulta com a lista de palavras dos documentos, mas no âmbito computacional, a comparação direta é custosa.
+Uma forma de diminuir esse custo é pela construção de um índice invertido para esses banco de documentos e, neste trabalho, utilizaremos a tabela hash
+como estrutura de dados.
+
+
+\subsection{Considerações Iniciais}
+Algumas ferramentas foram utilizadas durante a criação deste projeto:
+
+\begin{itemize}
+  \item Ambiente de desenvolvimento do código fonte: Visual Studio Code.
+  \item Linguagem utilizada: C.
+  \item Ambiente de desenvolvimento da documentação: Visual Studio Code \LaTeX Workshop.
+\end{itemize}
+
+\subsection{Ferramentas utilizadas}
+Algumas ferramentas foram utilizadas para testar a implementação, como:
+
+\begin{itemize}
+    \item[-] \textit{CLANG}: ferramentas de análise estática do código.
+    \item[-] \textit{Valgrind}: ferramentas de análise dinâmica do código.
+\end{itemize}
+
+\subsection{Especificações da máquina}
+A máquina onde o desenvolvimento e os testes foram realizados possui a seguinte configuração:
+
+\begin{itemize}
+    \item[-] Processador: Ryzen 7-5800H.
+    \item[-] Memória RAM: 16 Gb.
+    \item[-] Sistema Operacional: Arch Linux x86\_64.
+\end{itemize}
+
+
+\subsection{Instruções de compilação e execução}
+
+Para a compilação do projeto, basta digitar:
+
+\begin{tcolorbox}[title=Compilando o projeto,width=\linewidth]
+    gcc -c indiceInvertido.c -Wall \newline
+    gcc -c hash.c -Wall \newline
+    gcc -c tp.c -Wall \newline
+    gcc  -g indiceInvertido.o hash.o tp.o -o exe
+\end{tcolorbox}
+
+Usou-se para a compilação as seguintes opções:
+
+\begin{itemize}
+    \item [-] \emph{-g}: para compilar com informação de depuração e ser usado pelo Valgrind.
+    \item [-] \emph{-Wall}: para mostrar todos os possível \emph{warnings} do código.
+    \item [-] \emph{-c}: Para compilar o arquivo sem linkar os arquivos para obtermos um arquivo do tipo objeto.
+\end{itemize}
+
+Para a execução do programa basta digitar:
+\begin{tcolorbox}[title=,width=\linewidth]
+    ./exe $<$ caminho\_até\_o\_arquivo\_de\_entrada
+\end{tcolorbox}
+
+Onde “caminho-até-o-arquivo-de-entrada” pode ser: “1.in” para realizar o primeiro caso de teste e “2.in” para realizar o segundo.
+
+\clearpage
+
+\section{Desenvolvimento}
+
+Para este trabalho, não precisamos implementar TADs já que os que iríamos necessitar já nos foi dado. 
+De acordo com o pedido, e para uma melhor organização, o nosso código foi modularizado em vários arquivos: tp.c, hash.h, hash.c, indiceInvertido.c e indiceInvertido.h. 
+O arquivo tp.c deve apenas invocar e tratar as respostas das funções e procedimentos definidos nos arquivos hash.h e indiceInvertido.h.
+
+\subsection{TAD}
+Para começar a resolução do problema proposto, seguimos os TADs fornecidos pelo professor.
+
+\begin{lstlisting}[caption={TADs},label={lst:cod1},language=C]
+
+    typedef struct {
+        int n; // numero de documentos
+        Chave chave;
+        NomeDocumento documentos[ND];
+    } Item;
+    
+    typedef Item IndiceInvertido[M];
+
+\end{lstlisting}
+
+\subsection{Funções}
+
+A seguir entraremos em detalhe sobre as principais funções utilizadas no programa.
+
+\subsubsection{inicia}
+
+Para começar a resolução do problema proposto, primeiro iniciamos cada chave do nosso
+indiceInvertido como VAZIO, utilizando a função memcpy (memory copy).
+
+\begin{lstlisting}[caption={Função inicia},label={lst:cod2},language=C]
+
+void inicia(IndiceInvertido indiceInvertido){
+    
+    for (int i = 0; i < M; i++)
+        memcpy(indiceInvertido[i].chave, VAZIO, N);
+    
+}
+
+\end{lstlisting}
+
+\subsubsection{insereDocumentos}
+
+Essa função insere um documento baseado na chave do TAD IndiceInvertido. Com base na chave passada como parâmetro,
+criamos a variável indice que recebe o hash.
+
+\begin{lstlisting}[caption={Função insereDocumento},label={lst:cod3},language=C]
+bool insereDocumento(IndiceInvertido indiceInvertido, Chave chave, NomeDocumento nomeDocumento){
+
+    int indice = h(chave, M); //indice recebe o hash baseado na chave passada por parametro e tamanho da tabela 
+    if (chaveEhVazia(indiceInvertido[indice].chave)) 
+        return false;
+    
+    while(strcmp(indiceInvertido[indice % M].chave, chave)){ 
+    /*faz a comparacao entre a chave passada por parametro e a chave presente na tabela do indiceInvertido. Enquanto as chaves forem iguais o indice vai mudando.*/
+        indice++;  
+    }
+    
+    strcpy(indiceInvertido[indice].documentos[indiceInvertido[indice % M].n++], nomeDocumento);  
+    /*quando achar um lugar vazio na tabela/lista vai copiar o nome do documento passado como parametro para o documento presente no indiceInvertido*/
+    
+    return true;
+}
+
+
+    
+    \end{lstlisting}
+
+\subsubsection{busca}
+Esta função retorna o índice de uma chave passada por parâmetro presente no TAD IndiceInvertido, caso não tenha retorna -1.
+
+\begin{lstlisting}[caption={Função busca},label={lst:cod4},language=C]
+int busca(IndiceInvertido indiceInvertido, Chave chave){
+    int j = 0;
+    int ini = h(chave, M);
+
+    while (strcmp(indiceInvertido[(ini + j) % M].chave, VAZIO) != 0 &&
+            strcmp(indiceInvertido[(ini + j) % M].chave, chave) != 0 && // compara se a chave do parametro e a presente na tabela sao diferentes
+            j < M) //enquanto j for menor que o tamanho da tabela
+        j++; 
+    
+    if (strcmp(indiceInvertido[(ini + j) % M].chave, chave) == 0) //se as chaves forem iguais retorna a posicao na tabela
+        return (ini + j) % M;
+    
+    return -1; //caso nao haja correspondencia da chaves retorna -1
+}
+
+\end{lstlisting}
+
+
+\subsubsection{consulta}
+
+Essa função, baseada em uma ou mais chaves, retorna o nome dos documentos que contêm todas as chaves no índice invertido presente no TAD IndiceInvertido.
+\begin{lstlisting}[caption={Função consulta},label={lst:cod5},language=C]
+int consulta(IndiceInvertido indiceInvertido, Chave* chave, int numero_chaves, NomeDocumento* nomeDocumento){
+
+    int documentos_encontrados = 0;
+    if(!numero_chaves)
+        return 0;
+
+    Item item_base;
+    int indice_item_base = busca(indiceInvertido, chave[0]); //recebe a posicao da tabela que a chave se escontra
+
+    Item comparar;
+    int indice_comparar;
+
+    if(indice_item_base == -1){ //se for -1, condicao que diz que nao ha essa chave a tabela, retorna 0
+        return 0;
+    }
+    item_base = indiceInvertido[indice_item_base]; //se estiver na tabela, essa variavel do tipo Item recebe as informacoes presentes no indiceInvertido na posicao do indice_item_base
+
+    
+    int *vetor_int1 = inicializa_um(item_base.n); //inicializa com 1 o vetor que vai ter tamanho do numero de documentos
+
+    for(int i = 1; i < numero_chaves; i++){
+
+        int *vetor_int2 = calloc(item_base.n, sizeof(int)); //inicia com 0 o vetor que vai ter tamanho do numero de documentos
+
+        indice_comparar = busca(indiceInvertido, chave[i]); //recebe a posicao em que a chave[i] esta
+        
+        if(indice_comparar == -1) //se for -1 passa pro proximo loop
+            continue;
+
+        comparar = indiceInvertido[indice_comparar]; //se houver, a variavel do tipo Item recebe o que tem no indiceInvertido nessa posicao
+
+        for(int j = 0 ; j < item_base.n; j++){
+            for(int k = 0; k < comparar.n; k++){
+                if(!strcmp(item_base.documentos[j], comparar.documentos[k])){ //
+                    vetor_int2[j] = 1;
+                    
+                }
+            }
+        }
+
+        for(int j = 0; j < item_base.n;j++)
+            vetor_int1[j] = vetor_int2[j];
+
+        free(vetor_int2);
+
+        if(vetor_tudo_zero(vetor_int1, item_base.n)){ //passa tudo que tem no vetor1 para 0
+            free(vetor_int1); //desaloca
+            return 0;
+        }
+
+    }
+
+    for(int i = 0 ; i < item_base.n; i++){
+
+        if(vetor_int1[i]){
+            strcpy(nomeDocumento[documentos_encontrados++], item_base.documentos[i]); //copia o que tem no item_base para o nome do documentos na posicao documentos_encontrados
+        }                                                                              //que inicialmente era 0
+    }
+
+    return documentos_encontrados; //retorna a quantidade de documentos encontrados que tem a chave que foi buscada
+    
+}
+
+\end{lstlisting}
+
+\subsubsection{adicionarChaves}
+
+A função adicionarChaves adicona chaves na tabela.
+
+\begin{lstlisting}[caption={Função adicionarChaves},label={lst:cod6},language=C]
+void adicionarChaves(IndiceInvertido indiceInvertido, Chave *chaves, int qtdChaves){
+
+    for (int i = 0; i < qtdChaves; i++){
+
+        bool chaveDuplicada = false; //variavel pra verificar se a chave ja foi inserida anteriormente
+
+        int indice = h(chaves[i], M); 
+        
+        while(!chaveEhVazia(indiceInvertido[indice % M].chave)){
+
+            if(!strcmp(indiceInvertido[indice % M].chave, chaves[i])){
+                chaveDuplicada = true;
+                break;
+            }
+
+            indice++;
+        }
+
+        if(chaveDuplicada)
+            continue;
+
+        strcpy(indiceInvertido[indice % M].chave, chaves[i]);
+    }
+    
+}
+
+\end{lstlisting}
+
+
+\subsubsection{chaveEhVazia}
+Nesta função a verificação para confirmar se a chave é vazia é realizada.
+
+\begin{lstlisting}[caption={Função chaveEhVazia},label={lst:cod7},language=C]
+int chaveEhVazia(Chave chave){
+    
+    if(!strcmp(chave, VAZIO))
+        return 1;
+
+    return 0;
+}
+    
+\end{lstlisting}
+
+\subsubsection{inicializa\textunderscore um}
+
+Inicializa todas as posições do vetor com o valor 1.
+
+\begin{lstlisting}[caption={Função inicializa\textunderscore um},label={lst:cod7},language=C]
+int *inicializa_um(int n){
+
+    int *vetor = malloc(n * sizeof(int));
+
+    for(int i = 0; i < n; i++)
+        vetor[i] = 1;
+
+    return vetor;
+}
+\end{lstlisting}
+
+\subsubsection{vetor\textunderscore tudo\textunderscore zero}
+
+Para poder checar se não há mais elementos possiveis na nossa busca,
+vericamos se a soma do vetor de incidência é zero, ou seja só tem elementos nulos;
+
+
+\begin{lstlisting}[caption={Função vetor\textunderscore tudo\textunderscore zero},label={lst:cod7},language=C]
+int vetor_tudo_zero(int *vetor, int n){
+    int soma = 0;
+
+    for(int i = 0; i < n; i++){
+        soma += vetor[i];
+        if(soma >= 1)
+            return 0; 
+    }
+
+    return 1;
+}
+    
+\end{lstlisting}
+
+\subsubsection{mergeSort}
+
+Para ordenação, optamos por utilizar o método mergeSort, que faz uma chamada recursiva dela mesma no passo
+da divisão, para depois chamarmos a merge no passo da conquista e fazermos a ordenação.
+
+
+\begin{lstlisting}[caption={Função mergeSort},label={lst:cod7},language=C]
+void mergeSort(NomeDocumento *documentos, int l, int r){
+    if (l < r)
+    {
+        int m = (l+r)/2;
+        mergeSort(documentos,l,m);
+        mergeSort(documentos, m+1, r);
+        merge(documentos, l, m, r);
+    }
+}
+\end{lstlisting}
+
+\subsubsection{merge}
+
+Implementamos a função merge, que será responsável pela parte da conquista, em que após a divisão
+irá ordenar os subvetores em um maior, até que nosso vetor esteja completamente ordenado.
+\begin{lstlisting}[caption={Função merge},label={lst:cod7},language=C]
+void merge(NomeDocumento *documentos, int l, int m, int r){
+    int size_l = (m - l + 1);
+    int size_r = r - m;
+    int i, j;
+
+    NomeDocumento *vet_l =  malloc(size_l * sizeof(NomeDocumento));
+    NomeDocumento *vet_r =  malloc(size_r * sizeof(NomeDocumento));
+
+    for (i = 0; i < size_l; i++)
+    {
+       strcpy(vet_l[i], documentos[i+l]);
+    }
+    for (j = 0; j < size_r; j++)
+    {
+        strcpy(vet_r[j], documentos[m + j + 1]);
+    }
+    i = 0; j = 0;
+    for (int k = l; k <= r; k++)
+    {
+        if (i == size_l)
+        {
+            strcpy(documentos[k], vet_r[j++]);
+            //documentos[k] = vet_r[j++];
+        }
+        else if (j == size_r)
+        {
+            strcpy(documentos[k], vet_l[i++]);
+            //documentos[k] = vet_l[i++];
+        }
+        else if (compare(vet_l[i],vet_r[j]))
+        {
+            strcpy(documentos[k], vet_l[i++]);
+            //documentos[k] = vet_l[i++];
+        }
+        else{
+            strcpy(documentos[k], vet_r[j++]);
+            //documentos[k] = vet_r[j++];
+        }
+    }
+    free(vet_l);
+    free(vet_r);
+}
+\end{lstlisting}
+
+\subsubsection{compare}
+
+Nesta função ocorre a comparação dos nomes dos documentos.
+\begin{lstlisting}[caption={Função compare},label={lst:cod7},language=C]
+int compare(const NomeDocumento documento1, const NomeDocumento documento2) {
+
+    if(strcmp(documento1, documento2) < 0)
+        return 1;
+    else
+        return 0;
+}
+\end{lstlisting}
+
+\subsubsection{h}
+
+Aqui se encontra a função hash, onde utilizamos a variável m passada por parâmetro que indica o tamanho da tabela hash. Ela retorna o resto da soma pelo tamanho da tabela.
+\begin{lstlisting}[caption={Função h},label={lst:cod7},language=C]
+int h(char * chave, int m) {
+    float p[] = {0.8326030060567271, 0.3224428884580177, 
+                 0.6964223353369197, 0.1966079596929834, 
+                 0.8949283476433433, 0.4587297824155836, 
+                 0.5100785238948532, 0.05356055934904358, 
+                 0.9157270141062215, 0.7278472432221632};
+    int tamP = 10;
+    unsigned int soma = 0;
+    for (int i=0;i<strlen ( chave );i++)
+        soma += (unsigned int) chave [i] * p[i % tamP];
+    return soma % m; //
+}
+\end{lstlisting}
+
+\subsubsection{pegarChaves}
+
+Essa função pega a entrada e divide em documento e várias chaves e retorna a quantidade de chaves. O nome do documento não está sendo salvo no vetor de chaves.
+\begin{lstlisting}[caption={Função pegarChaves},label={lst:cod7},language=C]
+int pegarChaves(Chave* chaves) {
+    int i = 0;
+    char* token;
+    char str[MAX_STR];
+    
+    // tokenizacao da string original, divide em strings delimitadas por espaco em branco
+    fgets (str, MAX_STR, stdin);
+    str[strcspn(str, "\n")] = 0;
+
+    token = strtok(str, " ");
+
+    while (token != NULL) {
+        strcpy(chaves[i++], token);
+        //inserir o item na lista adequada
+        token = strtok(NULL, " ");
+    }
+    return i;
+}
+\end{lstlisting}
+
+\clearpage
+\subsection{main}
+
+Na função main, além de utilizarmos o scanf para obter o nobj e npontos, invocamos as funções necessárias para a realização dos procedimentos, sendo eles: a alocação dos objetos, a leitura deles, os cálculos necessários, a ordenação da lista, sua impressão e por último, desalocação.
+
+\begin{lstlisting}[caption={Função main},label={lst:cod11},language=C]
+
+#include <stdio.h>
+#include "indiceInvertido.h"
+#include "hash.h"
+
+
+int main() {
+
+    int numeroDocumentos;
+    scanf("%d", &numeroDocumentos);
+    Chave chaves[NN];
+    IndiceInvertido indiceInvertido;
+    int numeroChaves;
+    inicia(indiceInvertido);
+
+
+    for(int i = 0; i < numeroDocumentos; i++){
+
+        NomeDocumento nomeDocumento;
+        scanf("%s ", nomeDocumento);
+
+        numeroChaves = pegarChaves(chaves);
+        adicionarChaves(indiceInvertido, chaves, numeroChaves);
+
+
+        for(int j = 0; j < numeroChaves; j++)
+            insereDocumento(indiceInvertido, chaves[j], nomeDocumento);
+
+    }
+
+
+    char opcao;
+    scanf("%c", &opcao);
+
+    int documentos_encontrados;
+    NomeDocumento documentos[ND];
+
+    switch (opcao){
+        case 'I':
+            imprime(indiceInvertido);
+            break;
+        
+        case 'B':
+            
+            
+            numeroChaves = pegarChaves(chaves);
+            documentos_encontrados = consulta(indiceInvertido, chaves, numeroChaves,documentos);
+            
+            mergeSort(documentos, 0, documentos_encontrados-1);
+            // printf("---------------\n");
+            if( documentos_encontrados == 0){
+                printf("none\n");
+            }
+
+            else{
+                for(int i = 0; i < documentos_encontrados; i++){
+                    printf("%s\n", documentos[i]);
+                }
+            // printf("---------------\n");
+            }
+
+            break;
+
+        }
+
+    return 0;
+}
+
+\end{lstlisting}
+
+\clearpage
+
+
+\section{Impressões Gerais}
+
+Com as funções já pré definidas foi muito mais fácil construir a lógica para o desenvolvimento modular do código. O nosso grupo então se reuniu e pensou coletivamente sobre a ordem de execução das funções e suas utilidades.
+Outro conhecimento já adquirido anteriormente em outros trabalhos e posto em prática foi o uso do mergeSort, método de ordenação, para a solução de parte do nosso problema. Houve também o desenvolvimento de um código bem modularizado, com uma excelente ajuda das instruções contidas no documento que nos foi disponibilizado como exemplo.
+
+\section{Análise}
+
+Após o desenvolvimento do programa, a primeira análise feita foi atráves dos casos de teste disponibilizados na página do trabalho prático do run.codes, com simples exemplos de entrada e saída, executamos o programa com um dos exemplos de entrada e assim, foi possível fazer uma simples análise se o programa se comportava corretamente. Obtivemos algumas dificuldades que serão abordadas na conclusão. As próximas realizações de testes apresentaram resultados iguais ao exemplo de saída disponibilizado.
+Depois dos testes iniciais para verificar um funcionamento inicial do programa, utilizamos o valgrind, uma ferramenta de análise dinâmica de código para conferir se há algum memory leak ou warning referente a manipulação de memória.
+
+
+\section{Conclusão}
+
+Com este trabalho ampliamos os nossos conhecimentos referente a tabela Hash e como aplicá-lo para encontrar a solução de um problema.
+Como uma dificuldade inicial, tivemos a construção da lógica para a realização da busca de arquivos, em que deveriamos pensar em como realizar essa bsuca.
+A solução que decidimos utilizar foi um vetor de inciência, o numero máximo de elementos na interseção de dois conjuntos é o número máximo de elementos.
+Assim usamos como base a primeira chave passada na busca e a partir dela vamos verificando a incidência dos documentos em cada chave. Outra dificuldade foi entender o conceito de Hash,
+que é intrisicamente um conceito complicado de se entender.
+\end{document}

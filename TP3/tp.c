@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <time.h>
+
 #include "indiceInvertido.h"
 #include "hash.h"
+
 
 
 int main() {
@@ -10,6 +13,7 @@ int main() {
     Chave chaves[NN];
     IndiceInvertido indiceInvertido;
     int numeroChaves;
+    int contador_colisoes = 0;
     inicia(indiceInvertido);
 
 
@@ -19,7 +23,7 @@ int main() {
         scanf("%s ", nomeDocumento);
 
         numeroChaves = pegarChaves(chaves);
-        adicionarChaves(indiceInvertido, chaves, numeroChaves);
+        adicionarChaves(indiceInvertido, chaves, numeroChaves, &contador_colisoes);
 
 
         for(int j = 0; j < numeroChaves; j++)
@@ -62,5 +66,10 @@ int main() {
 
         }
 
+
+
+    // printf("%d\n", contador_colisoes);
+    // printf("%f\n",(float)clock() / CLOCKS_PER_SEC);
+    printf("Consumo de memória: %d bytes\n", M * (sizeof(Item) + ND * sizeof(NomeDocumento)));
     return 0;
 }
